@@ -1,0 +1,537 @@
+:root {
+  --primary: #607d8b;
+  --primary-dark: #455a64;
+  --accent: #1976d2;
+  --bg: #f5f7fa;
+  --white: #f5f7fa;
+  --shadow: 0 4px 24px rgba(96, 125, 139, 0.08);
+}
+
+body {
+  font-family: "Plus Jakarta Sans", Arial, sans-serif;
+  background: var(--bg);
+  margin: 0;
+  color: var(--primary-dark);
+}
+
+.navbar {
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 0;
+
+  /* 🔥 Tambahan supaya navbar tetap di atas saat scroll */
+  position: sticky; /* bisa diganti fixed kalau mau selalu nempel */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* Kalau pakai fixed, aktifkan ini biar konten tidak ketiban navbar */
+/*
+body {
+  padding-top: 64px; 
+}
+*/
+
+.nav-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+}
+
+.brand {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li a {
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-bottom 0.2s;
+}
+
+nav ul li a.active,
+nav ul li a:hover {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: var(--white);
+  padding: 40px 30px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+h2 {
+  color: var(--accent);
+  margin-top: 0;
+  font-weight: 600;
+}
+
+.form-section {
+  background: var(--bg);
+  padding: 28px 22px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.05);
+}
+
+input[type="file"] {
+  margin-bottom: 18px;
+}
+
+button,
+input[type="submit"] {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: "Plus Jakarta Sans", Arial, sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background: var(--primary);
+}
+
+.result-section {
+  margin-top: 28px;
+  background: var(--primary);
+  padding: 22px;
+  border-radius: 12px;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+
+img.result-img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 12px;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+}
+
+footer {
+  background: var(--white);
+  color: var(--primary-dark);
+  text-align: center;
+  padding: 18px 0 12px 0;
+  font-size: 1rem;
+  margin-top: 40px;
+  box-shadow: 0 -2px 8px rgba(96, 125, 139, 0.04);
+}
+
+.result-img {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(96, 125, 139, 0.08);
+  display: block;
+  margin: 0 auto 18px auto;
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 18px 6px;
+  }
+  .nav-container {
+    flex-direction: column;
+    height: auto;
+    gap: 8px;
+    padding: 0 8px;
+  }
+  nav ul {
+    gap: 18px;
+  }
+}
+
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  background: url("../static/hero.jpg") center/cover no-repeat;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(40, 60, 90, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+}
+
+.hero-content {
+  color: #fff;
+  text-align: left;
+  max-width: 600px;
+  padding: 40px 32px;
+}
+
+.hero-label {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 6px 18px;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+}
+
+.hero-title {
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin: 0 0 18px 0;
+  line-height: 1.15;
+}
+
+.hero-title .highlight {
+  color: #4fc3f7;
+}
+
+.hero-desc {
+  font-size: 1.1rem;
+  margin-bottom: 28px;
+  color: #e3f2fd;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 18px;
+}
+
+.hero-btn {
+  display: inline-block;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
+}
+
+.hero-btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.hero-btn.primary:hover {
+  background: #125ea2;
+}
+
+.hero-btn.secondary {
+  background: #fff;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+.hero-btn.secondary:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.fitur-utama-section {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 48px auto;
+  padding: 40px 0 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(96, 125, 139, 0.07);
+}
+
+.fitur-utama-title {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.fitur-utama-label {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.fitur-utama-subtitle {
+  font-size: 1.08rem;
+  color: #7b8a99;
+  font-weight: 400;
+}
+
+.fitur-utama-cards {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  width: 100%;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.fitur-card {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(96, 125, 139, 0.08);
+  padding: 36px 28px 28px 28px;
+  min-width: 220px;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+  position: relative;
+}
+
+.fitur-card:hover {
+  transform: translateY(-10px) scale(1.04);
+  box-shadow: 0 8px 32px rgba(25, 118, 210, 0.13),
+    0 2px 8px rgba(96, 125, 139, 0.13);
+  z-index: 2;
+}
+
+.fitur-card-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.fitur-card-desc {
+  font-size: 1.01rem;
+  color: #607d8b;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .fitur-utama-cards {
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+  }
+  .fitur-card {
+    width: 90%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+.tumor-info-section {
+  display: flex;
+  justify-content: center;
+  margin: 48px 0 0 0;
+  width: 100%;
+}
+
+.tumor-info-cards {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  max-width: 1000px;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.tumor-card {
+  border-radius: 18px;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 24px rgba(96, 125, 139, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.tumor-card.main {
+  flex: 2.5;
+  padding: 36px 32px;
+  min-width: 320px;
+  max-width: 520px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.18rem;
+}
+
+.tumor-card-header {
+  margin-bottom: 18px;
+}
+
+.tumor-card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.tumor-card-desc {
+  margin-top: 10px;
+  font-size: 1.08rem;
+  color: #e0e0e0;
+}
+
+.tumor-card.small {
+  flex: 1;
+  min-width: 180px;
+  max-width: 220px;
+  background: var(--color2, #b0bec5);
+  color: var(--primary-dark);
+  align-items: flex-start;
+  padding: 18px 12px 18px 12px;
+  margin-left: 0;
+  margin-right: 0;
+  justify-content: flex-start;
+  position: relative;
+  text-align: left;
+}
+
+.tumor-card.small .tumor-img {
+  width: 100%;
+  max-width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto 16px auto;
+  box-shadow: 0 2px 8px rgba(96, 125, 139, 0.1);
+}
+
+.tumor-card.small .tumor-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--primary-dark);
+}
+
+.tumor-card-desc-small {
+  font-size: 1.01rem;
+  color: var(--primary-dark);
+  margin-bottom: 6px;
+}
+
+.tumor-card {
+  transition: transform 0.18s cubic-bezier(0.4, 2, 0.6, 1), box-shadow 0.18s;
+  cursor: pointer;
+}
+
+.tumor-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(25, 118, 210, 0.13),
+    0 2px 8px rgba(96, 125, 139, 0.1);
+  z-index: 2;
+}
+
+.tumor-card.small .tumor-img {
+  transition: box-shadow 0.18s, filter 0.18s;
+}
+
+.tumor-card.small:hover .tumor-img {
+  box-shadow: 0 4px 24px rgba(25, 118, 210, 0.18);
+  filter: brightness(1.08) contrast(1.08);
+}
+
+@media (max-width: 1100px) {
+  .tumor-info-cards {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  .tumor-card.main,
+  .tumor-card.small {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .tumor-card.small .tumor-img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Tambahkan di style.css */
+.classify-container {
+  max-width: 400px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(96, 125, 139, 0.07);
+  padding: 32px 28px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.classify-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.classify-form label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.classify-form input[type="file"],
+.classify-form select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #b0bec5;
+  font-size: 1rem;
+}
+
+.classify-form button {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.classify-form button:hover {
+  background: #1565c0;
+}

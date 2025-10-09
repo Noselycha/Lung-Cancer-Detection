@@ -1,0 +1,119 @@
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
+content %}
+<div
+  class="hero-section"
+  style="background: url('{{ url_for('static', filename='assets/chest.jpg') }}') center/cover no-repeat; border-radius:18px; min-height:420px; position:relative; margin-bottom:32px;"
+>
+  <div class="hero-overlay">
+    <div class="hero-content">
+      <span class="hero-label">CHEST CANCER SYSTEM</span>
+      <h1 class="hero-title">
+        Klasifikasi & Segmentasi<br /><span class="highlight"
+          >Chest Cancer</span
+        >
+      </h1>
+      <p class="hero-desc">
+        Sistem berbasis AI untuk membantu diagnosis kanker paru-paru dari citra
+        atau CT scan dada secara otomatis dan cepat.<br />
+        Didukung dengan model deep learning.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('classify') }}" class="hero-btn primary"
+          >Klasifikasi</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fitur-utama-section">
+  <div class="fitur-utama-title">
+    <div class="fitur-utama-subtitle">
+      Sistem menyediakan fitur utama untuk membantu diagnosis kanker paru-paru
+      secara otomatis.
+    </div>
+  </div>
+  <div class="fitur-utama-cards">
+    <div class="fitur-card">
+      <div class="fitur-card-title">Klasifikasi</div>
+      <div class="fitur-card-desc">
+        Menentukan jenis kanker dari gambar CT scan dada.
+      </div>
+    </div>
+    <div class="fitur-card">
+      <div class="fitur-card-title">Visualisasi GradCAM</div>
+      <div class="fitur-card-desc">
+        Menampilkan area penting pada gambar hasil prediksi.
+      </div>
+    </div>
+    <div class="fitur-card">
+      <div class="fitur-card-title">Interpretasi LLM</div>
+      <div class="fitur-card-desc">
+        Memberikan penjelasan prediksi berbasis teks secara otomatis.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tumor-info-section">
+  <div class="tumor-info-cards">
+    <div class="tumor-card main">
+      <div class="tumor-card-header">
+        <span class="tumor-card-title">Chest Cancer</span>
+      </div>
+      <div class="tumor-card-desc">
+        Kanker paru-paru adalah pertumbuhan sel abnormal di paru-paru yang dapat
+        bersifat jinak maupun ganas. Deteksi dini sangat penting untuk
+        penanganan yang tepat. Terdapat beberapa jenis kanker paru-paru yang
+        umum ditemukan pada manusia.
+      </div>
+    </div>
+    <div class="tumor-card small adenocarcinoma">
+      <img
+        src="{{ url_for('static', filename='assets/ade.jpg') }}"
+        alt="Adenocarcinoma"
+        class="tumor-img"
+      />
+      <div class="tumor-card-title">Adenocarcinoma</div>
+      <div class="tumor-card-desc-small">
+        Jenis kanker paru-paru yang paling umum, biasanya ditemukan pada perokok
+        dan non-perokok.
+      </div>
+    </div>
+    <div class="tumor-card small squamous">
+      <img
+        src="{{ url_for('static', filename='assets/squa.jpg') }}"
+        alt="Squamous Cell Carcinoma"
+        class="tumor-img"
+      />
+      <div class="tumor-card-title">Squamous Cell Carcinoma</div>
+      <div class="tumor-card-desc-small">
+        Kanker yang berasal dari sel skuamosa di saluran udara paru-paru.
+      </div>
+    </div>
+    <div class="tumor-card small largecell">
+      <img
+        src="{{ url_for('static', filename='assets/large.jpg') }}"
+        alt="Large Cell Carcinoma"
+        class="tumor-img"
+      />
+      <div class="tumor-card-title">Large Cell Carcinoma</div>
+      <div class="tumor-card-desc-small">
+        Kanker paru-paru dengan pertumbuhan sel besar dan cepat, sering sulit
+        diobati.
+      </div>
+    </div>
+    <div class="tumor-card small normal">
+      <img
+        src="{{ url_for('static', filename='assets/normal.jpg') }}"
+        alt="Normal"
+        class="tumor-img"
+      />
+      <div class="tumor-card-title">Normal</div>
+      <div class="tumor-card-desc-small">
+        Kondisi paru-paru sehat tanpa tanda-tanda kanker.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %} {% block title %}Klasifikasi Chest Cancer{% endblock
+%} {% block content %} {% if error_message %}
+<div
+  class="alert alert-danger"
+  style="
+    margin-bottom: 20px;
+    color: #fff;
+    background: #d9534f;
+    border-radius: 8px;
+    padding: 12px;
+  "
+>
+  {{ error_message }}
+</div>
+{% endif %}
+
+<div class="classify-container">
+  <h2>Klasifikasi Chest Cancer</h2>
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    class="classify-form"
+    id="classifyForm"
+  >
+    <label for="image">Pilih gambar chest CT scan untuk klasifikasi:</label>
+    <input type="file" name="image" id="image" accept="image/*" required />
+
+    <label for="model_choice">Pilih Model:</label>
+    <select name="model" id="model_choice" required>
+      <option value="efficientnet">EfficientNet</option>
+      <option value="resnet">ResNet</option>
+      <option value="vgg">VGG</option>
+      <option value="densenet">DenseNet</option>
+    </select>
+
+    <button type="submit">Klasifikasi</button>
+  </form>
+</div>
+
+<div id="loading" style="display: none; text-align: center; margin: 20px 0">
+  <img
+    src="{{ url_for('static', filename='assets/load.gif') }}"
+    alt="Loading..."
+    width="60"
+  />
+  <p>Memproses, mohon tunggu...</p>
+</div>
+
+{% if prediction %}
+<div
+  class="result-section"
+  style="
+    background: #6c8793;
+    border-radius: 20px;
+    padding: 32px 24px;
+    margin-top: 30px;
+  "
+>
+  <h4 style="color: #fff; margin-bottom: 24px">
+    Hasil Prediksi: {{ prediction }}
+  </h4>
+  <div
+    style="
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+      margin-bottom: 28px;
+    "
+  >
+    <div style="text-align: center">
+      <b style="color: #fff">Input</b><br />
+      <img
+        src="{{ url_for('static', filename=input_path) }}"
+        style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
+      />
+    </div>
+    <div style="text-align: center">
+      <b style="color: #fff">GradCAM</b><br />
+      <img
+        src="{{ url_for('static', filename=gradcam_only_path) }}"
+        style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
+      />
+    </div>
+    <div style="text-align: center">
+      <b style="color: #fff">Overlay</b><br />
+      <img
+        src="{{ url_for('static', filename=gradcam_path) }}"
+        style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
+      />
+    </div>
+  </div>
+  {% if explanation %}
+  <div class="explanation" style="color: #fff; font-size: 1.15em">
+    {{ explanation|safe }}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<script>
+  const form = document.querySelector(".classify-form");
+  const loading = document.getElementById("loading");
+  form.addEventListener("submit", function () {
+    loading.style.display = "block";
+  });
+</script>
+{% endblock %}
