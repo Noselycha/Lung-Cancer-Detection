@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block content %}
+<h2>Performance Model</h2>
+<p>Pilih model untuk melihat evaluasi:</p>
+
+{% for model in models %}
+<div
+  style="
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+  "
+>
+  <h3 style="text-transform: capitalize">{{ model }}</h3>
+  <b>Confusion Matrix:</b><br />
+  <img
+    src="{{ url_for('static', filename=confusion_matrix_imgs[model]) }}"
+    alt="Confusion Matrix {{ model }}"
+    style="max-width: 400px"
+  />
+  <br /><br />
+  <b>Train & Validation Loss:</b><br />
+  <img
+    src="{{ url_for('static', filename=loss_imgs[model]) }}"
+    alt="Loss Curve {{ model }}"
+    style="max-width: 400px"
+  />
+  <br /><br />
+  <b>Evaluasi Model:</b>
+  <table border="1" cellpadding="6">
+    <tr>
+      <th>Class</th>
+      <th>Precision</th>
+      <th>Recall</th>
+      <th>F1 Score</th>
+    </tr>
+    {% for i in range(labels|length) %}
+    <tr>
+      <td>{{ labels[i] }}</td>
+      <td>{{ metrics[model]["precision"][i]|round(2) }}</td>
+      <td>{{ metrics[model]["recall"][i]|round(2) }}</td>
+      <td>{{ metrics[model]["f1_score"][i]|round(2) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p>
+    <strong>Overall Accuracy:</strong> {{ metrics[model]["accuracy"]|round(2) }}
+  </p>
+</div>
+{% endfor %} {% endblock %}

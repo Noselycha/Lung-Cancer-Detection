@@ -71,21 +71,21 @@
     <div style="text-align: center">
       <b style="color: #fff">Input</b><br />
       <img
-        src="{{ url_for('static', filename=input_path) }}"
+        src="data:image/jpeg;base64,{{ input_base64 }}"
         style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
       />
     </div>
     <div style="text-align: center">
       <b style="color: #fff">GradCAM</b><br />
       <img
-        src="{{ url_for('static', filename=gradcam_only_path) }}"
+        src="data:image/jpeg;base64,{{ gradcam_base64 }}"
         style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
       />
     </div>
     <div style="text-align: center">
       <b style="color: #fff">Overlay</b><br />
       <img
-        src="{{ url_for('static', filename=gradcam_path) }}"
+        src="data:image/jpeg;base64,{{ overlay_base64 }}"
         style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
       />
     </div>

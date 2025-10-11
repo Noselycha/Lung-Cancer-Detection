@@ -14,6 +14,8 @@
         <ul>
           <li><a href="{{ url_for('dashboard') }}" {% if request.endpoint=='dashboard' %}class="active"{% endif %}>Dashboard</a></li>
           <li><a href="{{ url_for('classify') }}" {% if request.endpoint=='classify' %}class="active"{% endif %}>Klasifikasi</a></li>
+          <li><a href="{{ url_for('performance') }}" {% if request.endpoint=='performance' %}class="active"{% endif %}>Performance Model</a></li>
+          <li><a href="{{ url_for('history') }}" {% if request.endpoint=='history' %}class="active"{% endif %}>Riwayat</a></li>
         </ul>
       </div>
     </nav>

@@ -1,0 +1,92 @@
+{% extends "base.html" %} {% block title %}Riwayat Klasifikasi{% endblock %} {%
+block content %}
+<div
+  class="history-container"
+  style="margin-top: 40px; display: flex; justify-content: center"
+>
+  <div
+    style="
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px #0001;
+      padding: 32px 36px;
+      min-width: 600px;
+    "
+  >
+    <h2 style="margin-bottom: 28px; color: #3a5ca8; font-weight: 700">
+      Riwayat Klasifikasi CT Scan Paru-paru
+    </h2>
+    {% if histories|length == 0 %}
+    <div
+      class="alert alert-info"
+      style="
+        background: #6c8793;
+        color: #fff;
+        border-radius: 8px;
+        padding: 12px;
+      "
+    >
+      Belum ada riwayat klasifikasi.
+    </div>
+    {% else %}
+    <div style="overflow-x: auto">
+      <table
+        class="table"
+        style="
+          width: 100%;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px #0002;
+          border-collapse: separate;
+          border-spacing: 0;
+        "
+      >
+        <thead style="background: #6c8793; color: #fff">
+          <tr>
+            <th style="padding: 12px 8px; border-top-left-radius: 8px">
+              Waktu
+            </th>
+            <th style="padding: 12px 8px">Model</th>
+            <th style="padding: 12px 8px">Prediksi</th>
+            <th style="padding: 12px 8px">Input</th>
+            <th style="padding: 12px 8px; border-top-right-radius: 8px">
+              GradCAM
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in histories %}
+          <tr style="background: #f7fafd">
+            <td style="padding: 10px 8px">
+              {{ h.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+            </td>
+            <td style="padding: 10px 8px">{{ h.model|capitalize }}</td>
+            <td style="padding: 10px 8px">{{ h.prediction }}</td>
+            <td style="padding: 10px 8px">
+              <img
+                src="data:image/jpeg;base64,{{ h.image_base64 }}"
+                style="
+                  width: 100px;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 8px #0002;
+                "
+              />
+            </td>
+            <td style="padding: 10px 8px">
+              <img
+                src="data:image/jpeg;base64,{{ h.gradcam_base64 }}"
+                style="
+                  width: 100px;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 8px #0002;
+                "
+              />
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
