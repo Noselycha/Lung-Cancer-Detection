@@ -22,6 +22,18 @@
     class="classify-form"
     id="classifyForm"
   >
+    <label for="nama_pasien">Nama Pasien:</label>
+    <input type="text" name="nama_pasien" id="nama_pasien" required />
+
+    <label for="umur_pasien">Umur Pasien:</label>
+    <input type="number" name="umur_pasien" id="umur_pasien" min="0" required />
+
+    <label for="gender_pasien">Gender Pasien:</label>
+    <select name="gender_pasien" id="gender_pasien" required>
+      <option value="Laki-laki">Laki-laki</option>
+      <option value="Perempuan">Perempuan</option>
+    </select>
+
     <label for="image">Pilih gambar chest CT scan untuk klasifikasi:</label>
     <input type="file" name="image" id="image" accept="image/*" required />
 

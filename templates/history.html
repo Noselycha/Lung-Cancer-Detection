@@ -10,13 +10,27 @@ block content %}
       border-radius: 18px;
       box-shadow: 0 2px 16px #0001;
       padding: 32px 36px;
-      min-width: 600px;
+      min-width: 700px;
     "
   >
     <h2 style="margin-bottom: 28px; color: #3a5ca8; font-weight: 700">
       Riwayat Klasifikasi CT Scan Paru-paru
     </h2>
-    {% if histories|length == 0 %}
+    {% if feedback %}
+    <div
+      style="
+        background: #5cb85c;
+        color: #fff;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 18px;
+        text-align: center;
+        font-weight: 500;
+      "
+    >
+      {{ feedback }}
+    </div>
+    {% endif %} {% if histories|length == 0 %}
     <div
       class="alert alert-info"
       style="
@@ -38,48 +52,69 @@ block content %}
           box-shadow: 0 2px 8px #0002;
           border-collapse: separate;
           border-spacing: 0;
+          font-size: 1.05em;
         "
       >
         <thead style="background: #6c8793; color: #fff">
           <tr>
-            <th style="padding: 12px 8px; border-top-left-radius: 8px">
-              Waktu
-            </th>
-            <th style="padding: 12px 8px">Model</th>
-            <th style="padding: 12px 8px">Prediksi</th>
-            <th style="padding: 12px 8px">Input</th>
-            <th style="padding: 12px 8px; border-top-right-radius: 8px">
-              GradCAM
-            </th>
+            <th style="padding: 10px">Nama</th>
+            <th style="padding: 10px">Model</th>
+            <th style="padding: 10px">Prediksi</th>
+            <th style="padding: 10px">Input</th>
+            <th style="padding: 10px">GradCAM</th>
+            <th style="padding: 10px"></th>
           </tr>
         </thead>
         <tbody>
           {% for h in histories %}
-          <tr style="background: #f7fafd">
-            <td style="padding: 10px 8px">
-              {{ h.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-            </td>
-            <td style="padding: 10px 8px">{{ h.model|capitalize }}</td>
-            <td style="padding: 10px 8px">{{ h.prediction }}</td>
-            <td style="padding: 10px 8px">
+          <tr style="background: #f7fafd; text-align: center">
+            <td style="padding: 10px">{{ h.nama_pasien }}</td>
+            <td style="padding: 10px">{{ h.model|capitalize }}</td>
+            <td style="padding: 10px">{{ h.prediction }}</td>
+            <td style="padding: 10px">
               <img
                 src="data:image/jpeg;base64,{{ h.image_base64 }}"
                 style="
-                  width: 100px;
+                  width: 80px;
                   border-radius: 8px;
                   box-shadow: 0 2px 8px #0002;
+                  border: 1px solid #dbe2ef;
                 "
               />
             </td>
-            <td style="padding: 10px 8px">
+            <td style="padding: 10px">
               <img
                 src="data:image/jpeg;base64,{{ h.gradcam_base64 }}"
                 style="
-                  width: 100px;
+                  width: 80px;
                   border-radius: 8px;
                   box-shadow: 0 2px 8px #0002;
+                  border: 1px solid #dbe2ef;
                 "
               />
+            </td>
+            <td style="padding: 10px">
+              <form
+                class="delete-form"
+                method="POST"
+                action="{{ url_for('delete_history', history_id=h._id) }}"
+                style="display: inline"
+              >
+                <button
+                  type="button"
+                  onclick="openModal(this.form)"
+                  style="
+                    background: #d9534f;
+                    color: #fff;
+                    border: none;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                  "
+                >
+                  Hapus
+                </button>
+              </form>
             </td>
           </tr>
           {% endfor %}
@@ -89,4 +124,78 @@ block content %}
     {% endif %}
   </div>
 </div>
+
+<div
+  id="modal-confirm"
+  style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0005;
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+  "
+>
+  <div
+    style="
+      background: #fff;
+      padding: 32px 28px;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px #0003;
+      text-align: center;
+      min-width: 320px;
+    "
+  >
+    <div style="font-size: 1.15em; margin-bottom: 18px">
+      Yakin ingin menghapus riwayat ini?
+    </div>
+    <form id="modal-form" method="POST">
+      <button
+        type="submit"
+        style="
+          background: #d9534f;
+          color: #fff;
+          border: none;
+          padding: 8px 18px;
+          border-radius: 6px;
+          margin-right: 12px;
+          cursor: pointer;
+        "
+      >
+        Hapus
+      </button>
+      <button
+        type="button"
+        onclick="closeModal()"
+        style="
+          background: #6c8793;
+          color: #fff;
+          border: none;
+          padding: 8px 18px;
+          border-radius: 6px;
+          cursor: pointer;
+        "
+      >
+        Batal
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openModal(form) {
+    const modal = document.getElementById("modal-confirm");
+    const modalForm = document.getElementById("modal-form");
+    modal.style.display = "flex";
+    // Copy action dari form yang diklik ke modal
+    modalForm.action = form.action;
+  }
+  function closeModal() {
+    document.getElementById("modal-confirm").style.display = "none";
+  }
+</script>
 {% endblock %}

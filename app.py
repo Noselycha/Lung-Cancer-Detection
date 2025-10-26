@@ -11,6 +11,8 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 import matplotlib
 import base64
 import io
+from bson import ObjectId
+from flask import redirect, url_for
 
 matplotlib.use("Agg")
 from dotenv import load_dotenv
@@ -47,29 +49,6 @@ def find_last_conv_layer(model):
             return layer.name
     raise ValueError("Tidak dapat menemukan layer Conv2D di dalam model.")
 
-def validate_with_gemini(image_path):
-    try:
-        with open(image_path, "rb") as f:
-            img_bytes = f.read()
-        prompt = (
-            "Anda adalah validator untuk aplikasi medis. "
-            "Tugas Anda adalah memeriksa apakah gambar berikut adalah citra CT scan dada manusia. "
-            "Jika gambar adalah CT scan dada (dengan atau tanpa kelainan), jawab 'VALID'. "
-            "Jika bukan (misal foto wajah, hewan, MRI, X-ray, atau objek lain), jawab 'INVALID'. "
-            "Jawaban hanya satu kata: VALID atau INVALID."
-        )
-        model = genai.GenerativeModel("gemini-2.5-pro")
-        response = model.generate_content(
-            [
-                prompt,
-                {"mime_type": "image/jpeg", "data": img_bytes}
-            ]
-        )
-        return response.text.strip().upper() == "VALID"
-    except Exception as e:
-        print("Error Gemini Validation:", e)
-        return False
-
 def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None):
     grad_model = tf.keras.models.Model(
         inputs=model.input,
@@ -94,13 +73,13 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
 def load_selected_model(model_name):
     model_path = ""
     if model_name == "efficientnet":
-        model_path = "model/chest_efficientnetB1.keras"
+        model_path = "model/chest_efficientnetB1_RMSprop.keras"
     elif model_name == "resnet":
-        model_path = "model/resnet.h5"
+        model_path = "model/chest_resnet50_RMSprop.keras"
     elif model_name == "vgg":
-        model_path = "model/vgg.h5"
+        model_path = "model/chest_VGG16RMSprop.keras"
     elif model_name == "densenet":
-        model_path = "model/densenet.h5"
+        model_path = "model/chest_densenet121.keras"
     else:
         raise ValueError("Model tidak dikenal")
     model = load_model(model_path)
@@ -130,9 +109,31 @@ def classify():
 
     if request.method == "POST":
         selected_model = request.form["model"]
+        nama_pasien = request.form["nama_pasien"]
+        umur_pasien = request.form["umur_pasien"]
+        gender_pasien = request.form["gender_pasien"]
         file = request.files["image"]
         img_bytes = file.read()
         input_base64 = base64.b64encode(img_bytes).decode("utf-8")
+
+        # Validasi Gemini langsung dari img_bytes (tanpa simpan ke disk)
+        prompt = (
+            "Anda adalah validator untuk aplikasi medis. "
+            "Tugas Anda adalah memeriksa apakah gambar berikut adalah citra CT scan dada manusia. "
+            "Jika gambar adalah CT scan dada (dengan atau tanpa kelainan), jawab 'VALID'. "
+            "Jika bukan (misal foto wajah, hewan, MRI, X-ray, atau objek lain), jawab 'INVALID'. "
+            "Jawaban hanya satu kata: VALID atau INVALID."
+        )
+        model = genai.GenerativeModel("gemini-2.5-pro")
+        response = model.generate_content(
+            [
+                prompt,
+                {"mime_type": "image/jpeg", "data": img_bytes}
+            ]
+        )
+        if response.text.strip().upper() != "VALID":
+            error_message = "Gambar yang diupload bukan CT scan dada manusia."
+            return render_template("classify.html", error_message=error_message)
 
         # Validasi langsung dari img_bytes (tanpa save ke disk)
         nparr = np.frombuffer(img_bytes, np.uint8)
@@ -157,15 +158,6 @@ def classify():
         heatmap_resized = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
         heatmap_uint8 = np.uint8(255 * heatmap_resized)
         heatmap_color = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
-
-        gradcam_only_filename = f"heatmap_{file.filename}"
-        gradcam_only_path = os.path.join("static", gradcam_only_filename)
-        cv2.imwrite(gradcam_only_path, heatmap_color)
-
-        gradcam_filename = f"gradcam_{file.filename}"
-        gradcam_path = os.path.join("static", gradcam_filename)
-        superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
-        cv2.imwrite(gradcam_path, superimposed_img)
 
         # GradCAM base64 langsung dari array
         superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
@@ -203,12 +195,12 @@ def classify():
 
 
         history_doc = {
-            "timestamp": datetime.datetime.now(),
             "model": selected_model,
             "prediction": prediction,
             "input_filename": file.filename,
             "image_base64": input_base64,
             "gradcam_base64": gradcam_base64,
+            "nama_pasien": nama_pasien, 
         }
         history_collection.insert_one(history_doc)
 
@@ -230,16 +222,16 @@ def performance():
 
     # Gambar confusion matrix dan loss curve untuk setiap model
     confusion_matrix_imgs = {
-        "efficientnet": "confusion_efficientnet.png",
-        "densenet": "confusion_densenet.png",
-        "resnet": "confusion_resnet.png",
-        "vgg": "confusion_vgg.png",
+        "efficientnet": "EfficientNet_cm.jpg",
+        "densenet": "DenseNet_cm.jpg",
+        "resnet": "ResNet_cm.jpg",
+        "vgg": "VGG_cm.jpg",
     }
     loss_imgs = {
-        "efficientnet": "loss_efficientnet.png",
-        "densenet": "loss_densenet.png",
-        "resnet": "loss_resnet.png",
-        "vgg": "loss_vgg.png",
+        "efficientnet": "EfficientNet_curve.jpg",
+        "densenet": "DenseNet_curve.jpg",
+        "resnet": "ResNet_curve.jpg",
+        "vgg": "VGG_curve.jpg",
     }
 
     # Contoh data evaluasi (isi dengan data asli Anda)
@@ -283,7 +275,9 @@ def performance():
 
 @app.route("/history")
 def history():
+    feedback = request.args.get("feedback")
     histories = list(history_collection.find({}, {
+        "nama_pasien": 1,
         "timestamp": 1,
         "model": 1,
         "prediction": 1,
@@ -292,8 +286,13 @@ def history():
         "gradcam_base64": 1
     }).sort("timestamp", -1))
     for h in histories:
-        h["_id"] = str(h["_id"])  # Convert ObjectId to string
-    return render_template("history.html", histories=histories)
+        h["_id"] = str(h["_id"])
+    return render_template("history.html", histories=histories, feedback=feedback)
+
+@app.route("/delete_history/<history_id>", methods=["POST"])
+def delete_history(history_id):
+    history_collection.delete_one({"_id": ObjectId(history_id)})
+    return redirect(url_for("history", feedback="Riwayat berhasil dihapus."))
 
 if __name__ == "__main__":
     app.run(debug=True)
