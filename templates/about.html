@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% extends 'base.html' %} {% block title %}About Us - Chest Cancer System{%
+endblock %} {% block content %}
+<div class="about-page">
+  <h1 class="about-title">Tentang Kami</h1>
+
+  <p class="about-intro">Tim pengembang sistem deteksi kanker paru-paru.</p>
+
+  <section class="team-section">
+    <h2 class="section-heading">Tim Peneliti</h2>
+    <div class="team-grid">
+      {% for member in research_team %}
+      <article class="team-card">
+        <div class="team-photo">
+          <img
+            src="{{ url_for('static', filename=member.photo) }}"
+            alt="{{ member.name }}"
+          />
+        </div>
+        <div class="team-info">
+          <h3 class="team-name">{{ member.name }}</h3>
+          <p class="team-role">{{ member.role }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="team-section">
+    <h2 class="section-heading">Doses Pembimbing</h2>
+    <div class="team-grid">
+      {% for member in advisors %}
+      <article class="team-card">
+        <div class="team-photo">
+          <img
+            src="{{ url_for('static', filename=member.photo) }}"
+            alt="{{ member.name }}"
+          />
+        </div>
+        <div class="team-info">
+          <h3 class="team-name">{{ member.name }}</h3>
+          <p class="team-role">{{ member.role }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="contact-section">
+    <h2 class="section-heading light">Kontak</h2>
+    <div class="contact-grid">
+      {% for member in research_team + advisors %}
+      <div class="contact-card">
+        <h3 class="contact-name">{{ member.name }}</h3>
+        <p><strong>Universitas:</strong> {{ member.university }}</p>
+        <p><strong>Fakultas:</strong> {{ member.department }}</p>
+        <p><strong>Tahun:</strong> {{ member.year }}</p>
+        <p>
+          <strong>Email:</strong>
+          <a href="mailto:{{ member.email }}">{{ member.email }}</a>
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <p class="about-footer">Copyright &copy; {{ 2025 }} Chest Cancer System</p>
+</div>
+{% endblock %}

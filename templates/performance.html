@@ -1,50 +1,114 @@
-{% extends "base.html" %} {% block content %}
-<h2>Performance Model</h2>
-<p>Pilih model untuk melihat evaluasi:</p>
+{% extends "base.html" %} {% block title %}Performance Model{% endblock %} {%
+block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='performance.css') }}"
+/>
 
-{% for model in models %}
-<div
-  style="
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 30px;
-  "
->
-  <h3 style="text-transform: capitalize">{{ model }}</h3>
-  <b>Confusion Matrix:</b><br />
-  <img
-    src="{{ url_for('static', filename=confusion_matrix_imgs[model]) }}"
-    alt="Confusion Matrix {{ model }}"
-    style="max-width: 400px"
-  />
-  <br /><br />
-  <b>Train & Validation Loss:</b><br />
-  <img
-    src="{{ url_for('static', filename=loss_imgs[model]) }}"
-    alt="Loss Curve {{ model }}"
-    style="max-width: 400px"
-  />
-  <br /><br />
-  <b>Evaluasi Model:</b>
-  <table border="1" cellpadding="6">
-    <tr>
-      <th>Class</th>
-      <th>Precision</th>
-      <th>Recall</th>
-      <th>F1 Score</th>
-    </tr>
-    {% for i in range(labels|length) %}
-    <tr>
-      <td>{{ labels[i] }}</td>
-      <td>{{ metrics[model]["precision"][i]|round(2) }}</td>
-      <td>{{ metrics[model]["recall"][i]|round(2) }}</td>
-      <td>{{ metrics[model]["f1_score"][i]|round(2) }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  <p>
-    <strong>Overall Accuracy:</strong> {{ metrics[model]["accuracy"]|round(2) }}
-  </p>
+<div class="perf-container">
+  <header class="perf-header">
+    <h2>Performance Model</h2>
+    <p class="subtitle">
+      Dikelompokkan: Confusion Matrix, Train & Validation Loss, dan Evaluasi
+      Model. Pilih model untuk detail atau lihat ringkasan di bawah.
+    </p>
+  </header>
+
+  <!-- Confusion Matrices grouped -->
+  <section class="section">
+    <div class="section-title">Confusion Matrics</div>
+    <!-- pakai two-col-grid agar selalu 2 kolom -->
+    <div class="section-grid two-col-grid">
+      {% for model in models %}
+      <div class="perf-card">
+        <div class="card-head">
+          <div class="model-name">{{ model|capitalize }}</div>
+        </div>
+        <div class="card-body">
+          <img
+            class="perf-img large"
+            src="{{ url_for('static', filename=confusion_matrix_imgs[model]) }}"
+            alt="Confusion Matrix {{ model }}"
+          />
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Train & Validation Loss grouped -->
+  <section class="section">
+    <div class="section-title">Train & Validation Loss</div>
+    <div class="section-grid two-col-grid">
+      {% for model in models %}
+      <div class="perf-card">
+        <div class="card-head">
+          <div class="model-name">{{ model|capitalize }}</div>
+        </div>
+        <div class="card-body">
+          <img
+            class="perf-img large"
+            src="{{ url_for('static', filename=loss_imgs[model]) }}"
+            alt="Loss Curve {{ model }}"
+          />
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Evaluasi Model grouped in a comparative table -->
+  <section class="section">
+    <div class="section-title">Evaluasi Model (Precision / Recall / F1)</div>
+
+    <div class="eval-wrap">
+      <table
+        class="eval-table"
+        role="table"
+        aria-label="Evaluasi per kelas per model"
+      >
+        <thead>
+          <tr>
+            <th class="sticky-col">Class</th>
+            {% for model in models %}
+            <th class="model-header" colspan="3">{{ model|capitalize }}</th>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th class="sticky-col empty"></th>
+            {% for model in models %}
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in range(labels|length) %}
+          <tr>
+            <td class="sticky-col label-col">{{ labels[i] }}</td>
+            {% for model in models %}
+            <td class="num">{{ metrics[model]["precision"][i]|round(2) }}</td>
+            <td class="num">{{ metrics[model]["recall"][i]|round(2) }}</td>
+            <td class="num">{{ metrics[model]["f1_score"][i]|round(2) }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="accuracy-panel">
+        <h4>Overall Accuracy</h4>
+        <ul class="accuracy-list">
+          {% for model in models %}
+          <li>
+            <span class="mname">{{ model|capitalize }}:</span>
+            <span class="mval">{{ metrics[model]["accuracy"]|round(3) }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
 </div>
-{% endfor %} {% endblock %}
+{% endblock %}

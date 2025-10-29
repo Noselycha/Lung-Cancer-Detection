@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <title>{% block title %}Chest Cancer System{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    {% if request.endpoint == 'about' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='about.css') }}" />
+    {% endif %}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
@@ -16,6 +19,7 @@
           <li><a href="{{ url_for('classify') }}" {% if request.endpoint=='classify' %}class="active"{% endif %}>Klasifikasi</a></li>
           <li><a href="{{ url_for('performance') }}" {% if request.endpoint=='performance' %}class="active"{% endif %}>Performance Model</a></li>
           <li><a href="{{ url_for('history') }}" {% if request.endpoint=='history' %}class="active"{% endif %}>Riwayat</a></li>
+          <li><a href="{{ url_for('about') }}" {% if request.endpoint=='about' %}class="active"{% endif %}>About</a></li>
         </ul>
       </div>
     </nav>

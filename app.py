@@ -273,6 +273,54 @@ def performance():
         labels=labels,
     )
 
+
+@app.route("/about")
+def about():
+    # Split data into research team (mahasiswa) and advisors (dosens)
+    research_team = [
+        {
+            "name": "Noselycha Soriton",
+            "role": "Research Student",
+            "university": "Universitas Anda",
+            "department": "Departemen Anda",
+            "year": "2025",
+            "email": "noselycha@example.com",
+            "photo": "assets/noselycha.jpg",
+        },
+        {
+            "name": "Emily Pangemanan",
+            "role": "Research Student",
+            "university": "Universitas Anda",
+            "department": "Departemen Anda",
+            "year": "2025",
+            "email": "emily@example.com",
+            "photo": "assets/emily.jpg",
+        },
+    ]
+
+    advisors = [
+        {
+            "name": "Green Sandag",
+            "role": "Advisor",
+            "university": "Universitas Anda",
+            "department": "Departemen Anda",
+            "year": "2025",
+            "email": "green@example.com",
+            "photo": "assets/green.jpg",
+        },
+        {
+            "name": "Raissa Maringka",
+            "role": "Advisor",
+            "university": "Universitas Anda",
+            "department": "Departemen Anda",
+            "year": "2025",
+            "email": "raissa@example.com",
+            "photo": "assets/raissa.jpg",
+        },
+    ]
+
+    return render_template("about.html", research_team=research_team, advisors=advisors)
+
 @app.route("/history")
 def history():
     feedback = request.args.get("feedback")
