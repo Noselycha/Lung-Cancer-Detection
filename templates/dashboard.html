@@ -1,16 +1,16 @@
 {% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
 content %}
+
 <div
   class="hero-section"
-  style="background: url('{{ url_for('static', filename='assets/chest.jpg') }}') center/cover no-repeat; border-radius:18px; min-height:420px; position:relative; margin-bottom:32px;"
+  style="background: url('{{ url_for('static', filename='assets/chest.jpg') }}') center/cover no-repeat;"
 >
   <div class="hero-overlay">
     <div class="hero-content">
-      <span class="hero-label">CHEST CANCER SYSTEM</span>
+      <span class="hero-label">SISTEM KANKER PARU-PARU</span>
       <h1 class="hero-title">
-        Klasifikasi & Segmentasi<br /><span class="highlight"
-          >Chest Cancer</span
-        >
+        Klasifikasi<br />
+        <span class="highlight">Kanker Paru-Paru</span>
       </h1>
       <p class="hero-desc">
         Sistem berbasis AI untuk membantu diagnosis kanker paru-paru dari citra
@@ -18,102 +18,432 @@ content %}
         Didukung dengan model deep learning.
       </p>
       <div class="hero-actions">
-        <a href="{{ url_for('classify') }}" class="hero-btn primary"
-          >Klasifikasi</a
-        >
+        <a href="{{ url_for('classify') }}" class="hero-btn primary">
+          <svg
+            class="hero-btn-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+            />
+          </svg>
+          Mulai Klasifikasi
+        </a>
+        <a href="{{ url_for('about') }}" class="hero-btn secondary">
+          <svg
+            class="hero-btn-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          Pelajari Lebih Lanjut
+        </a>
       </div>
     </div>
   </div>
 </div>
 
-<div class="fitur-utama-section">
-  <div class="fitur-utama-title">
-    <div class="fitur-utama-subtitle">
-      Sistem menyediakan fitur utama untuk membantu diagnosis kanker paru-paru
-      secara otomatis.
+<section class="features-section">
+  <div class="features-header">
+    <h2 class="features-title">Fitur Utama Sistem</h2>
+    <p class="features-subtitle">
+      Sistem menyediakan fitur canggih untuk membantu diagnosis kanker paru-paru
+      secara otomatis dengan akurasi tinggi.
+    </p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+          />
+        </svg>
+      </div>
+      <h3 class="feature-title">Klasifikasi AI</h3>
+      <p class="feature-desc">
+        Menentukan jenis kanker dari gambar CT scan dada menggunakan model deep
+        learning dengan akurasi tinggi.
+      </p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+          />
+        </svg>
+      </div>
+      <h3 class="feature-title">Visualisasi GradCAM</h3>
+      <p class="feature-desc">
+        Menampilkan area penting pada gambar hasil prediksi untuk membantu
+        interpretasi hasil diagnosis.
+      </p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+          />
+        </svg>
+      </div>
+      <h3 class="feature-title">Interpretasi LLM</h3>
+      <p class="feature-desc">
+        Memberikan penjelasan prediksi berbasis teks secara otomatis untuk
+        memudahkan pemahaman hasil.
+      </p>
     </div>
   </div>
-  <div class="fitur-utama-cards">
-    <div class="fitur-card">
-      <div class="fitur-card-title">Klasifikasi</div>
-      <div class="fitur-card-desc">
-        Menentukan jenis kanker dari gambar CT scan dada.
-      </div>
-    </div>
-    <div class="fitur-card">
-      <div class="fitur-card-title">Visualisasi GradCAM</div>
-      <div class="fitur-card-desc">
-        Menampilkan area penting pada gambar hasil prediksi.
-      </div>
-    </div>
-    <div class="fitur-card">
-      <div class="fitur-card-title">Interpretasi LLM</div>
-      <div class="fitur-card-desc">
-        Memberikan penjelasan prediksi berbasis teks secara otomatis.
-      </div>
-    </div>
-  </div>
-</div>
+</section>
 
-<div class="tumor-info-section">
-  <div class="tumor-info-cards">
-    <div class="tumor-card main">
-      <div class="tumor-card-header">
-        <span class="tumor-card-title">Chest Cancer</span>
-      </div>
-      <div class="tumor-card-desc">
-        Kanker paru-paru adalah pertumbuhan sel abnormal di paru-paru yang dapat
-        bersifat jinak maupun ganas. Deteksi dini sangat penting untuk
-        penanganan yang tepat. Terdapat beberapa jenis kanker paru-paru yang
-        umum ditemukan pada manusia.
+<section class="cancer-info-section">
+  <div class="section-header-center">
+    <span class="section-badge">Jenis Kanker</span>
+    <h2 class="section-title-large">Kanker Paru-Paru yang Dapat Dideteksi</h2>
+    <p class="section-description">
+      Sistem kami dapat mendeteksi berbagai jenis kanker paru-paru dengan
+      akurasi tinggi menggunakan teknologi deep learning terkini.
+    </p>
+  </div>
+
+  <div class="cancer-info-grid">
+    <div class="cancer-card featured">
+      <div class="cancer-card-header">
+        <div class="cancer-card-icon-inline">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h2 class="cancer-card-title">Tentang Kanker Paru-Paru</h2>
+        <p class="cancer-card-desc">
+          Kanker paru-paru adalah pertumbuhan sel abnormal di paru-paru yang
+          dapat bersifat jinak maupun ganas. Deteksi dini sangat penting untuk
+          penanganan yang tepat dan meningkatkan peluang kesembuhan pasien.
+        </p>
       </div>
     </div>
-    <div class="tumor-card small adenocarcinoma">
+
+    <div class="cancer-card adenocarcinoma">
       <img
         src="{{ url_for('static', filename='assets/ade.jpg') }}"
         alt="Adenocarcinoma"
-        class="tumor-img"
+        class="cancer-image"
       />
-      <div class="tumor-card-title">Adenocarcinoma</div>
-      <div class="tumor-card-desc-small">
-        Jenis kanker paru-paru yang paling umum, biasanya ditemukan pada perokok
-        dan non-perokok.
+      <div class="cancer-card-body">
+        <span class="cancer-badge">Paling Umum</span>
+        <h3 class="cancer-card-title">Adenocarcinoma</h3>
+        <p class="cancer-card-desc-small">
+          Jenis kanker paru-paru yang paling umum ditemukan, dapat terjadi pada
+          perokok maupun non-perokok. Biasanya berkembang di bagian luar
+          paru-paru.
+        </p>
+        <div class="cancer-features">
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Berkembang lambat
+          </span>
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Respon terapi baik
+          </span>
+        </div>
       </div>
     </div>
-    <div class="tumor-card small squamous">
+
+    <div class="cancer-card squamous">
       <img
         src="{{ url_for('static', filename='assets/squa.jpg') }}"
         alt="Squamous Cell Carcinoma"
-        class="tumor-img"
+        class="cancer-image"
       />
-      <div class="tumor-card-title">Squamous Cell Carcinoma</div>
-      <div class="tumor-card-desc-small">
-        Kanker yang berasal dari sel skuamosa di saluran udara paru-paru.
+      <div class="cancer-card-body">
+        <span class="cancer-badge">Sel Skuamosa</span>
+        <h3 class="cancer-card-title">Squamous Cell Carcinoma</h3>
+        <p class="cancer-card-desc-small">
+          Kanker yang berasal dari sel skuamosa di saluran udara utama
+          paru-paru. Biasanya berhubungan dengan riwayat merokok.
+        </p>
+        <div class="cancer-features">
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Terkait merokok
+          </span>
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Lokasi sentral
+          </span>
+        </div>
       </div>
     </div>
-    <div class="tumor-card small largecell">
+
+    <div class="cancer-card largecell">
       <img
         src="{{ url_for('static', filename='assets/large.jpg') }}"
         alt="Large Cell Carcinoma"
-        class="tumor-img"
+        class="cancer-image"
       />
-      <div class="tumor-card-title">Large Cell Carcinoma</div>
-      <div class="tumor-card-desc-small">
-        Kanker paru-paru dengan pertumbuhan sel besar dan cepat, sering sulit
-        diobati.
+      <div class="cancer-card-body">
+        <span class="cancer-badge">Agresif</span>
+        <h3 class="cancer-card-title">Large Cell Carcinoma</h3>
+        <p class="cancer-card-desc-small">
+          Kanker dengan sel besar yang tumbuh dan menyebar dengan cepat. Dapat
+          muncul di bagian mana pun dari paru-paru.
+        </p>
+        <div class="cancer-features">
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Pertumbuhan cepat
+          </span>
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Deteksi dini penting
+          </span>
+        </div>
       </div>
     </div>
-    <div class="tumor-card small normal">
+
+    <div class="cancer-card normal">
       <img
         src="{{ url_for('static', filename='assets/normal.jpg') }}"
         alt="Normal"
-        class="tumor-img"
+        class="cancer-image"
       />
-      <div class="tumor-card-title">Normal</div>
-      <div class="tumor-card-desc-small">
-        Kondisi paru-paru sehat tanpa tanda-tanda kanker.
+      <div class="cancer-card-body">
+        <span class="cancer-badge success">Sehat</span>
+        <h3 class="cancer-card-title">Normal</h3>
+        <p class="cancer-card-desc-small">
+          Kondisi paru-paru yang sehat tanpa tanda-tanda kanker atau kelainan
+          lainnya. Penting untuk menjaga kesehatan paru-paru dengan gaya hidup
+          sehat.
+        </p>
+        <div class="cancer-features">
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Tidak ada kelainan
+          </span>
+          <span class="cancer-feature-item">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Fungsi optimal
+          </span>
+        </div>
       </div>
     </div>
   </div>
-</div>
+</section>
+
+<section class="cta-section">
+  <div class="cta-container">
+    <div class="cta-content">
+      <span class="cta-badge">Mulai Sekarang</span>
+      <h2 class="cta-title">Siap untuk Melakukan Klasifikasi?</h2>
+      <p class="cta-description">
+        Unggah gambar CT scan dada Anda dan dapatkan hasil klasifikasi dengan
+        cepat menggunakan teknologi AI terkini.
+      </p>
+      <div class="cta-buttons">
+        <a href="{{ url_for('classify') }}" class="cta-btn primary">
+          <svg
+            class="cta-btn-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+          Mulai Klasifikasi
+        </a>
+        <a href="{{ url_for('performance') }}" class="cta-btn secondary">
+          <svg
+            class="cta-btn-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+          Lihat Performa Model
+        </a>
+      </div>
+    </div>
+    <div class="cta-visual">
+      <div class="cta-visual-item">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </div>
+      <div class="cta-visual-item">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
+        </svg>
+      </div>
+      <div class="cta-visual-item">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

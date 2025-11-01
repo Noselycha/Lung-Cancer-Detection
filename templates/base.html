@@ -1,35 +1,310 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sistem deteksi kanker paru-paru berbasis AI untuk klasifikasi dan analisis citra CT scan">
     <title>{% block title %}Chest Cancer System{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icon Library -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}" />
+    {% if request.endpoint == 'dashboard' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
+    {% endif %}
+    {% if request.endpoint == 'classify' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='classify.css') }}" />
+    {% endif %}
     {% if request.endpoint == 'about' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='about.css') }}" />
     {% endif %}
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% if request.endpoint == 'performance' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='performance.css') }}" />
+    {% endif %}
+    {% if request.endpoint == 'history' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}" />
+    {% endif %}
   </head>
   <body>
-    <nav class="navbar">
-      <div class="nav-container">
-        <div class="brand">Chest Cancer System</div>
-        <ul>
-          <li><a href="{{ url_for('dashboard') }}" {% if request.endpoint=='dashboard' %}class="active"{% endif %}>Dashboard</a></li>
-          <li><a href="{{ url_for('classify') }}" {% if request.endpoint=='classify' %}class="active"{% endif %}>Klasifikasi</a></li>
-          <li><a href="{{ url_for('performance') }}" {% if request.endpoint=='performance' %}class="active"{% endif %}>Performance Model</a></li>
-          <li><a href="{{ url_for('history') }}" {% if request.endpoint=='history' %}class="active"{% endif %}>Riwayat</a></li>
-          <li><a href="{{ url_for('about') }}" {% if request.endpoint=='about' %}class="active"{% endif %}>About</a></li>
-        </ul>
+    <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
+    <div class="background-canvas" aria-hidden="true">
+      <div class="background-layer background-gradient gradient-primary"></div>
+      <div class="background-layer background-gradient gradient-accent"></div>
+      <div class="background-layer background-glow"></div>
+      <div class="background-layer background-grid"></div>
+    </div>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+      <a href="{{ url_for('dashboard') }}" class="brand-mobile">
+        <svg class="brand-icon-mobile" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <span>Chest Cancer System</span>
+      </a>
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+      <div class="sidebar-header">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+          <div class="sidebar-brand-icon-wrapper">
+            <svg class="sidebar-brand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+          </div>
+          <div class="sidebar-brand-content">
+            <span class="sidebar-brand-text">Sistem Deteksi</span>
+            <span class="sidebar-brand-subtext">Kanker Paru - Paru</span>
+          </div>
+        </a>
       </div>
-    </nav>
-    <main>
-      <div class="container">{% block content %}{% endblock %}</div>
-    </main>
-    <footer>
-      <div class="footer-container">
-        &copy; {{ 2025 }} Chest Cancer System. All rights reserved.
+      
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Main Menu</span>
+          <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+              <a href="{{ url_for('dashboard') }}" 
+                 class="sidebar-link {% if request.endpoint=='dashboard' %}active{% endif %}"
+                 {% if request.endpoint=='dashboard' %}aria-current="page"{% endif %}>
+                <div class="sidebar-link-icon">
+                  <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                  </svg>
+                </div>
+                <span class="sidebar-text">Dashboard</span>
+                <span class="sidebar-link-badge">Home</span>
+              </a>
+            </li>
+            <li class="sidebar-menu-item">
+              <a href="{{ url_for('classify') }}" 
+                 class="sidebar-link {% if request.endpoint=='classify' %}active{% endif %}"
+                 {% if request.endpoint=='classify' %}aria-current="page"{% endif %}>
+                <div class="sidebar-link-icon">
+                  <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                  </svg>
+                </div>
+                <span class="sidebar-text">Klasifikasi</span>
+                <span class="sidebar-link-arrow">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </a>
+            </li>
+            <li class="sidebar-menu-item">
+              <a href="{{ url_for('performance') }}" 
+                 class="sidebar-link {% if request.endpoint=='performance' %}active{% endif %}"
+                 {% if request.endpoint=='performance' %}aria-current="page"{% endif %}>
+                <div class="sidebar-link-icon">
+                  <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                </div>
+                <span class="sidebar-text">Performance</span>
+                <span class="sidebar-link-arrow">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </a>
+            </li>
+            <li class="sidebar-menu-item">
+              <a href="{{ url_for('history') }}" 
+                 class="sidebar-link {% if request.endpoint=='history' %}active{% endif %}"
+                 {% if request.endpoint=='history' %}aria-current="page"{% endif %}>
+                <div class="sidebar-link-icon">
+                  <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <span class="sidebar-text">Riwayat</span>
+                <span class="sidebar-link-arrow">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Information</span>
+          <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+              <a href="{{ url_for('about') }}" 
+                 class="sidebar-link {% if request.endpoint=='about' %}active{% endif %}"
+                 {% if request.endpoint=='about' %}aria-current="page"{% endif %}>
+                <div class="sidebar-link-icon">
+                  <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <span class="sidebar-text">About</span>
+                <span class="sidebar-link-arrow">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-content">
+          <div class="sidebar-footer-badge">
+            <svg class="sidebar-footer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div class="sidebar-footer-text">
+            <div class="sidebar-footer-title">AI Powered</div>
+            <div class="sidebar-footer-subtitle">Deep Learning v1.0.0</div>
+          </div>
+          <div class="sidebar-footer-status">
+            <span class="status-indicator"></span>
+          </div>
+        </div>
       </div>
-    </footer>
+    </aside>
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      <!-- Main Content -->
+      <main class="main-content" role="main" id="main-content">
+        <div class="content-container">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer" role="contentinfo">
+        <div class="footer-content">
+          <p>&copy; 2025 Chest Cancer System. All rights reserved.</p>
+          <p class="footer-subtitle">Powered by AI & Deep Learning</p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Mobile menu toggle with smooth animations
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      
+      function toggleSidebar() {
+        sidebar.classList.toggle('active');
+        sidebarOverlay.classList.toggle('active');
+        document.body.classList.toggle('sidebar-open');
+        
+        // Animate menu items
+        if (document.body.classList.contains('sidebar-open')) {
+          const menuItems = document.querySelectorAll('.sidebar-menu-item');
+          menuItems.forEach((item, index) => {
+            item.style.animation = `slideInLeft 0.3s ease-out ${index * 0.05}s both`;
+          });
+        }
+      }
+      
+      mobileMenuToggle.addEventListener('click', toggleSidebar);
+      sidebarOverlay.addEventListener('click', toggleSidebar);
+      
+      // Close sidebar when clicking a link on mobile
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth < 768) {
+            setTimeout(toggleSidebar, 200);
+          }
+        });
+      });
+      
+      // Add hover effects for sidebar links
+      sidebarLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateX(4px)';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+          if (!this.classList.contains('active')) {
+            this.style.transform = '';
+          }
+        });
+      });
+      
+      // Smooth scroll for skip link
+      const skipLink = document.querySelector('.skip-link');
+      if (skipLink) {
+        skipLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.querySelector(skipLink.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            target.focus();
+          }
+        });
+      }
+      
+      // Add loading animation
+      window.addEventListener('load', () => {
+        document.body.classList.add('loaded');
+      });
+    </script>
+    
+    <style>
+      @keyframes slideInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      
+      body:not(.loaded) .sidebar {
+        opacity: 0;
+      }
+      
+      body.loaded .sidebar {
+        animation: slideInFromLeft 0.4s ease-out both;
+      }
+      
+      @keyframes slideInFromLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+    </style>
   </body>
 </html>

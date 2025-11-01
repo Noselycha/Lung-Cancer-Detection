@@ -1,201 +1,277 @@
-{% extends "base.html" %} {% block title %}Riwayat Klasifikasi{% endblock %} {%
-block content %}
-<div
-  class="history-container"
-  style="margin-top: 40px; display: flex; justify-content: center"
->
-  <div
-    style="
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 2px 16px #0001;
-      padding: 32px 36px;
-      min-width: 700px;
-    "
-  >
-    <h2 style="margin-bottom: 28px; color: #3a5ca8; font-weight: 700">
-      Riwayat Klasifikasi CT Scan Paru-paru
-    </h2>
-    {% if feedback %}
-    <div
-      style="
-        background: #5cb85c;
-        color: #fff;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 18px;
-        text-align: center;
-        font-weight: 500;
-      "
-    >
-      {{ feedback }}
+{% extends "base.html" %} {% block title %}Riwayat Klasifikasi - Chest Cancer
+System{% endblock %} {% block content %}
+
+<section class="history-hero">
+  <div class="content-container">
+    <div class="history-hero-content">
+      <div class="hero-icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h1>Riwayat Klasifikasi</h1>
+      <p class="hero-subtitle">
+        Daftar lengkap hasil klasifikasi CT scan yang telah dilakukan
+      </p>
     </div>
-    {% endif %} {% if histories|length == 0 %}
-    <div
-      class="alert alert-info"
-      style="
-        background: #6c8793;
-        color: #fff;
-        border-radius: 8px;
-        padding: 12px;
-      "
-    >
-      Belum ada riwayat klasifikasi.
+  </div>
+</section>
+
+{% if feedback %}
+<div class="content-container">
+  <div class="alert alert-success">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>{{ feedback }}</span>
+  </div>
+</div>
+{% endif %} {% if histories|length == 0 %}
+<section class="empty-state-section">
+  <div class="content-container">
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+          />
+        </svg>
+      </div>
+      <h3>Belum Ada Riwayat</h3>
+      <p>
+        Anda belum melakukan klasifikasi. Mulai dengan mengupload CT scan di
+        halaman Klasifikasi.
+      </p>
+      <a href="{{ url_for('classify') }}" class="btn btn-primary">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+          />
+        </svg>
+        Mulai Klasifikasi
+      </a>
     </div>
-    {% else %}
-    <div style="overflow-x: auto">
-      <table
-        class="table"
-        style="
-          width: 100%;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px #0002;
-          border-collapse: separate;
-          border-spacing: 0;
-          font-size: 1.05em;
-        "
-      >
-        <thead style="background: #6c8793; color: #fff">
-          <tr>
-            <th style="padding: 10px">Nama</th>
-            <th style="padding: 10px">Model</th>
-            <th style="padding: 10px">Prediksi</th>
-            <th style="padding: 10px">Input</th>
-            <th style="padding: 10px">GradCAM</th>
-            <th style="padding: 10px"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for h in histories %}
-          <tr style="background: #f7fafd; text-align: center">
-            <td style="padding: 10px">{{ h.nama_pasien }}</td>
-            <td style="padding: 10px">{{ h.model|capitalize }}</td>
-            <td style="padding: 10px">{{ h.prediction }}</td>
-            <td style="padding: 10px">
-              <img
-                src="data:image/jpeg;base64,{{ h.image_base64 }}"
-                style="
-                  width: 80px;
-                  border-radius: 8px;
-                  box-shadow: 0 2px 8px #0002;
-                  border: 1px solid #dbe2ef;
-                "
-              />
-            </td>
-            <td style="padding: 10px">
-              <img
-                src="data:image/jpeg;base64,{{ h.gradcam_base64 }}"
-                style="
-                  width: 80px;
-                  border-radius: 8px;
-                  box-shadow: 0 2px 8px #0002;
-                  border: 1px solid #dbe2ef;
-                "
-              />
-            </td>
-            <td style="padding: 10px">
-              <form
-                class="delete-form"
-                method="POST"
-                action="{{ url_for('delete_history', history_id=h._id) }}"
-                style="display: inline"
+  </div>
+</section>
+{% else %}
+
+<section class="stats-section">
+  <div class="content-container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ histories|length }}</div>
+          <div class="stat-label">Total Klasifikasi</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">
+            {{ histories|map(attribute='nama_pasien')|unique|list|length }}
+          </div>
+          <div class="stat-label">Pasien Unik</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">
+            {{ histories|map(attribute='model')|unique|list|length }}
+          </div>
+          <div class="stat-label">Model Digunakan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="history-section">
+  <div class="content-container">
+    <div class="section-header">
+      <h2>Daftar Klasifikasi</h2>
+    </div>
+
+    <div class="history-list">
+      {% for h in histories %}
+      <article class="history-item">
+        <div class="history-item-header">
+          <div class="patient-info">
+            <div class="patient-avatar">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
               >
-                <button
-                  type="button"
-                  onclick="openModal(this.form)"
-                  style="
-                    background: #d9534f;
-                    color: #fff;
-                    border: none;
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  "
+                <path
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3>{{ h.nama_pasien }}</h3>
+              <div class="history-meta">
+                <span class="model-badge">{{ h.model|capitalize }}</span>
+                {% if h.timestamp %}
+                <span class="time-badge">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                  {{ h.timestamp.strftime('%d %b %Y, %H:%M') if h.timestamp else
+                  'N/A' }}
+                </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <form
+            action="{{ url_for('delete_history', history_id=h._id) }}"
+            method="POST"
+            style="display: inline"
+            onsubmit="return confirm('Apakah Anda yakin ingin menghapus riwayat ini?');"
+          >
+            <button type="submit" class="delete-btn" title="Hapus riwayat">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        <div class="history-item-body">
+          <div class="prediction-result">
+            <div class="result-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="result-content">
+              <div class="result-label">Hasil Prediksi</div>
+              <div class="result-value">{{ h.prediction }}</div>
+            </div>
+          </div>
+
+          <div class="history-images">
+            <div class="image-card">
+              <div class="image-header">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
                 >
-                  Hapus
-                </button>
-              </form>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% endif %}
-  </div>
-</div>
+                  <path
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span>CT Scan Input</span>
+              </div>
+              <div class="image-wrapper">
+                <img
+                  src="data:image/jpeg;base64,{{ h.image_base64 }}"
+                  alt="Input CT Scan"
+                  loading="lazy"
+                />
+              </div>
+            </div>
 
-<div
-  id="modal-confirm"
-  style="
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #0005;
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-  "
->
-  <div
-    style="
-      background: #fff;
-      padding: 32px 28px;
-      border-radius: 16px;
-      box-shadow: 0 2px 16px #0003;
-      text-align: center;
-      min-width: 320px;
-    "
-  >
-    <div style="font-size: 1.15em; margin-bottom: 18px">
-      Yakin ingin menghapus riwayat ini?
+            <div class="image-card">
+              <div class="image-header">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                <span>GradCAM Analysis</span>
+              </div>
+              <div class="image-wrapper">
+                <img
+                  src="data:image/jpeg;base64,{{ h.gradcam_base64 }}"
+                  alt="GradCAM Analysis"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
     </div>
-    <form id="modal-form" method="POST">
-      <button
-        type="submit"
-        style="
-          background: #d9534f;
-          color: #fff;
-          border: none;
-          padding: 8px 18px;
-          border-radius: 6px;
-          margin-right: 12px;
-          cursor: pointer;
-        "
-      >
-        Hapus
-      </button>
-      <button
-        type="button"
-        onclick="closeModal()"
-        style="
-          background: #6c8793;
-          color: #fff;
-          border: none;
-          padding: 8px 18px;
-          border-radius: 6px;
-          cursor: pointer;
-        "
-      >
-        Batal
-      </button>
-    </form>
   </div>
-</div>
+</section>
 
-<script>
-  function openModal(form) {
-    const modal = document.getElementById("modal-confirm");
-    const modalForm = document.getElementById("modal-form");
-    modal.style.display = "flex";
-    // Copy action dari form yang diklik ke modal
-    modalForm.action = form.action;
-  }
-  function closeModal() {
-    document.getElementById("modal-confirm").style.display = "none";
-  }
-</script>
-{% endblock %}
+{% endif %} {% endblock %}

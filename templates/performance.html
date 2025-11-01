@@ -1,114 +1,219 @@
-{% extends "base.html" %} {% block title %}Performance Model{% endblock %} {%
-block content %}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='performance.css') }}"
-/>
+{% extends "base.html" %} {% block title %}Performance Model - Chest Cancer
+System{% endblock %} {% block content %}
 
-<div class="perf-container">
-  <header class="perf-header">
-    <h2>Performance Model</h2>
-    <p class="subtitle">
-      Dikelompokkan: Confusion Matrix, Train & Validation Loss, dan Evaluasi
-      Model. Pilih model untuk detail atau lihat ringkasan di bawah.
-    </p>
-  </header>
+<!-- Hero Section -->
+<section class="performance-hero">
+  <div class="content-container">
+    <div class="performance-hero-content">
+      <div class="hero-icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+      </div>
+      <h1>Performa Model</h1>
+      <p class="hero-subtitle">
+        Analisis komprehensif performa model deteksi kanker paru-paru
+      </p>
+    </div>
+  </div>
+</section>
 
-  <!-- Confusion Matrices grouped -->
-  <section class="section">
-    <div class="section-title">Confusion Matrics</div>
-    <!-- pakai two-col-grid agar selalu 2 kolom -->
-    <div class="section-grid two-col-grid">
+<!-- Overall Metrics Summary -->
+<section class="metrics-summary">
+  <div class="content-container">
+    <div class="metrics-grid">
       {% for model in models %}
-      <div class="perf-card">
-        <div class="card-head">
-          <div class="model-name">{{ model|capitalize }}</div>
+      <div class="metric-card">
+        <div class="metric-header">
+          <div class="metric-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3>{{ model|capitalize }}</h3>
         </div>
-        <div class="card-body">
+        <div class="metric-value">
+          {{ (metrics[model]["accuracy"] * 100)|round(1) }}%
+        </div>
+        <div class="metric-label">Overall Accuracy</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Confusion Matrices Section -->
+<section class="performance-section">
+  <div class="content-container">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"
+          />
+        </svg>
+      </div>
+      <div>
+        <h2>Confusion Matrix</h2>
+        <p class="section-subtitle">
+          Visualisasi prediksi model vs nilai aktual
+        </p>
+      </div>
+    </div>
+    <div class="charts-grid">
+      {% for model in models %}
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>{{ model|capitalize }}</h3>
+          <span class="chart-badge">Matrix</span>
+        </div>
+        <div class="chart-body">
           <img
-            class="perf-img large"
             src="{{ url_for('static', filename=confusion_matrix_imgs[model]) }}"
             alt="Confusion Matrix {{ model }}"
+            class="chart-image"
           />
         </div>
       </div>
       {% endfor %}
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Train & Validation Loss grouped -->
-  <section class="section">
-    <div class="section-title">Train & Validation Loss</div>
-    <div class="section-grid two-col-grid">
+<!-- Training Loss Section -->
+<section class="performance-section section-alt">
+  <div class="content-container">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+          />
+        </svg>
+      </div>
+      <div>
+        <h2>Training & Validation Loss</h2>
+        <p class="section-subtitle">Kurva loss selama proses training model</p>
+      </div>
+    </div>
+    <div class="charts-grid">
       {% for model in models %}
-      <div class="perf-card">
-        <div class="card-head">
-          <div class="model-name">{{ model|capitalize }}</div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>{{ model|capitalize }}</h3>
+          <span class="chart-badge">Loss Curve</span>
         </div>
-        <div class="card-body">
+        <div class="chart-body">
           <img
-            class="perf-img large"
             src="{{ url_for('static', filename=loss_imgs[model]) }}"
             alt="Loss Curve {{ model }}"
+            class="chart-image"
           />
         </div>
       </div>
       {% endfor %}
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Evaluasi Model grouped in a comparative table -->
-  <section class="section">
-    <div class="section-title">Evaluasi Model (Precision / Recall / F1)</div>
-
-    <div class="eval-wrap">
-      <table
-        class="eval-table"
-        role="table"
-        aria-label="Evaluasi per kelas per model"
-      >
-        <thead>
-          <tr>
-            <th class="sticky-col">Class</th>
-            {% for model in models %}
-            <th class="model-header" colspan="3">{{ model|capitalize }}</th>
-            {% endfor %}
-          </tr>
-          <tr>
-            <th class="sticky-col empty"></th>
-            {% for model in models %}
-            <th>Precision</th>
-            <th>Recall</th>
-            <th>F1</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for i in range(labels|length) %}
-          <tr>
-            <td class="sticky-col label-col">{{ labels[i] }}</td>
-            {% for model in models %}
-            <td class="num">{{ metrics[model]["precision"][i]|round(2) }}</td>
-            <td class="num">{{ metrics[model]["recall"][i]|round(2) }}</td>
-            <td class="num">{{ metrics[model]["f1_score"][i]|round(2) }}</td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-      <div class="accuracy-panel">
-        <h4>Overall Accuracy</h4>
-        <ul class="accuracy-list">
-          {% for model in models %}
-          <li>
-            <span class="mname">{{ model|capitalize }}:</span>
-            <span class="mval">{{ metrics[model]["accuracy"]|round(3) }}</span>
-          </li>
-          {% endfor %}
-        </ul>
+<!-- Detailed Metrics Section -->
+<section class="performance-section">
+  <div class="content-container">
+    <div class="section-header">
+      <div class="section-icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+          />
+        </svg>
+      </div>
+      <div>
+        <h2>Evaluasi Model</h2>
+        <p class="section-subtitle">
+          Accuracy, Precision, Recall, dan F1-Score setiap model
+        </p>
       </div>
     </div>
-  </section>
-</div>
+
+    <!-- Model Comparison Cards -->
+    <div class="comparison-grid">
+      {% for model in models %}
+      <div class="model-detail-card">
+        <div class="model-detail-header">
+          <div class="model-badge">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <h3>{{ model|capitalize }}</h3>
+        </div>
+        <div class="model-stats">
+          <div class="stat-item">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value">
+              {{ (metrics[model]["accuracy"] * 100)|round(2) }}%
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Avg Precision</div>
+            <div class="stat-value">
+              {{ ((metrics[model]["precision"]|sum /
+              metrics[model]["precision"]|length) * 100)|round(2) }}%
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Avg Recall</div>
+            <div class="stat-value">
+              {{ ((metrics[model]["recall"]|sum /
+              metrics[model]["recall"]|length) * 100)|round(2) }}%
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Avg F1-Score</div>
+            <div class="stat-value">
+              {{ ((metrics[model]["f1_score"]|sum /
+              metrics[model]["f1_score"]|length) * 100)|round(2) }}%
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
 {% endblock %}
