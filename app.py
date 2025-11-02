@@ -14,8 +14,6 @@ from pymongo import MongoClient
 from bson import ObjectId
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
-
-# Muat variabel lingkungan
 load_dotenv()
 
 # Setup MongoDB
@@ -24,20 +22,15 @@ client = MongoClient(MONGO_URI)
 db = client.lungcancer
 history_collection = db.history
 
-# Setup Gemini
 try:
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 except Exception as e:
-    print(f"Peringatan: Gagal mengkonfigurasi Gemini. Pastikan GEMINI_API_KEY di .env sudah benar. Error: {e}")
+    print(f"Error: {e}")
 
-# Konfigurasi Model
 LABELS = ["adenocarcinoma", "large.cell.carcinoma", "normal", "squamous.cell.carcinoma"]
 IMAGE_SIZE = 224
 
-# Global App
 app = Flask(__name__)
-
-# --- Fungsi Helper Gemini (Tetap ada, tapi tidak dipanggil) ---
 
 def get_gemini_explanation(prompt):
     try:
@@ -58,7 +51,6 @@ def validate_image_with_gemini(img_bytes):
             "Jika bukan (misal foto wajah, hewan, MRI, X-ray, atau objek lain), jawab 'INVALID'. "
             "Jawaban hanya satu kata: VALID atau INVALID."
         )
-        # Menggunakan model vision
         model = genai.GenerativeModel("gemini-2.5-pro") 
         image_part = {"mime_type": "image/jpeg", "data": img_bytes}
         response = model.generate_content([prompt, image_part])
@@ -67,17 +59,13 @@ def validate_image_with_gemini(img_bytes):
         print(f"Error saat validasi Gemini: {str(e)}")
         return True 
 
-# --- Fungsi Helper Model & GradCAM ---
-
 def find_last_conv_layer(model):
-    """Menemukan nama layer Conv2D terakhir di model."""
     for layer in reversed(model.layers):
         if isinstance(layer, tf.keras.layers.Conv2D):
             return layer.name
     raise ValueError("Tidak ada layer Conv2D yang ditemukan di model.")
 
 def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None):
-    """Membuat heatmap GradCAM."""
     grad_model = tf.keras.models.Model(
         [model.inputs], [model.get_layer(last_conv_layer_name).output, model.output]
     )
@@ -99,7 +87,6 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
 
 
 def load_selected_model(model_name):
-    """Memuat model Keras dari file dengan custom object 'Cast'."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
     model_file = None
     
@@ -114,7 +101,6 @@ def load_selected_model(model_name):
             f"Model file not found: {model_path}. Letakkan file .h5 di dalam folder 'model'."
         )
 
-    # Definisikan Custom Layer 'Cast'
     class CastLayer(tf.keras.layers.Layer):
         def __init__(self, dtype='float32', **kwargs):
             self._dtype = dtype
@@ -125,7 +111,6 @@ def load_selected_model(model_name):
             return self._dtype
 
         def call(self, inputs):
-            # **PERBAIKAN 2: Menggunakan tf.cast (sebelumnya 'cast')**
             return tf.cast(inputs, dtype=self.dtype)
 
         def get_config(self):
@@ -143,7 +128,6 @@ def load_selected_model(model_name):
     
     try:
         with tf.keras.utils.custom_object_scope(custom_objects):
-            # **PERBAIKAN 1: Menggunakan tf.keras.models (sebelumnya 'models')**
             model = tf.keras.models.load_model(model_path, compile=False)
     except Exception as e:
         raise ValueError(f"Error loading model: {str(e)}. Pastikan file model tidak korup.")
@@ -151,13 +135,10 @@ def load_selected_model(model_name):
     last_conv = find_last_conv_layer(model)
     return model, last_conv
 
-# --- Logika Pemuatan Model Saat Startup ---
-
 LOADED_MODELS = {}
 LOADED_LAST_CONV = {}
 
 def load_all_models():
-    """Memuat semua model yang tersedia saat aplikasi dimulai."""
     available_models = {
         "efficientnet": "lungcancer_efficientnetB3_RMSprop.h5"
     }
@@ -230,12 +211,10 @@ def process_image(img_bytes, selected_model):
 
 @app.route("/")
 def dashboard():
-    """Halaman utama (Dashboard)."""
     return render_template("dashboard.html")
 
 @app.route("/classify", methods=["GET", "POST"])
 def classify():
-    """Halaman untuk mengupload dan mengklasifikasi gambar."""
     prediction = None
     explanation_html = None
     error_message = None
@@ -341,17 +320,15 @@ def classify():
         input_base64=input_base64,
         gradcam_base64=gradcam_base64,
         overlay_base64=overlay_base64,
-        explanation=explanation_html, # Ini akan menjadi None
+        explanation=explanation_html, 
         error_message=error_message,
         available_models=list(LOADED_MODELS.keys())
     )
 
 @app.route("/performance")
 def performance():
-    """Halaman untuk menampilkan performa model."""
-    models = ["efficientnet"] # Hanya model yang didukung
+    models = ["efficientnet"] 
 
-    # Aset statis untuk performa model
     confusion_matrix_imgs = {
         "efficientnet": "EfficientNet_cm.jpg",
     }
@@ -378,7 +355,6 @@ def performance():
 
 @app.route("/about")
 def about():
-    """Halaman 'Tentang Kami'."""
     research_team = [
         {
             "name": "Noselycha Soriton",
@@ -423,7 +399,6 @@ def about():
 
 @app.route("/history")
 def history():
-    """Halaman riwayat klasifikasi."""
     feedback = request.args.get("feedback")
     try:
         histories = list(history_collection.find({}, {
@@ -448,7 +423,6 @@ def history():
 
 @app.route("/delete_history/<history_id>", methods=["POST"])
 def delete_history(history_id):
-    """Menghapus entri riwayat berdasarkan ID."""
     try:
         history_collection.delete_one({"_id": ObjectId(history_id)})
         return redirect(url_for("history", feedback="Riwayat berhasil dihapus."))
