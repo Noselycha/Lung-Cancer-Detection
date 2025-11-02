@@ -34,7 +34,7 @@ app = Flask(__name__)
 
 def get_gemini_explanation(prompt):
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro") # Menggunakan 1.5 Pro
+        model = genai.GenerativeModel("gemini-2.5-pro") 
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
@@ -50,7 +50,7 @@ def validate_image_with_gemini(img_bytes):
             "Jika bukan (misal foto wajah, hewan, MRI, X-ray, atau objek lain), jawab 'INVALID'. "
             "Jawaban hanya satu kata: VALID atau INVALID."
         )
-        model = genai.GenerativeModel("gemini-1.5-pro") # Menggunakan 1.5 Pro
+        model = genai.GenerativeModel("gemini-2.5-pro") # Menggunakan 1.5 Pro
         image_part = {"mime_type": "image/jpeg", "data": img_bytes}
         response = model.generate_content([prompt, image_part])
         return response.text.strip().upper() == "VALID"
