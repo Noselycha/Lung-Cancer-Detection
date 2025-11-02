@@ -34,8 +34,7 @@ app = Flask(__name__)
 
 def get_gemini_explanation(prompt):
     try:
-
-        model = genai.GenerativeModel("gemini-2.5-pro") 
+        model = genai.GenerativeModel("gemini-1.5-pro") # Menggunakan 1.5 Pro
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
@@ -51,13 +50,13 @@ def validate_image_with_gemini(img_bytes):
             "Jika bukan (misal foto wajah, hewan, MRI, X-ray, atau objek lain), jawab 'INVALID'. "
             "Jawaban hanya satu kata: VALID atau INVALID."
         )
-        model = genai.GenerativeModel("gemini-2.5-pro") 
+        model = genai.GenerativeModel("gemini-1.5-pro") # Menggunakan 1.5 Pro
         image_part = {"mime_type": "image/jpeg", "data": img_bytes}
         response = model.generate_content([prompt, image_part])
         return response.text.strip().upper() == "VALID"
     except Exception as e:
         print(f"Error saat validasi Gemini: {str(e)}")
-        return True 
+        return True # Default ke True jika validasi gagal, agar tidak memblokir
 
 def find_last_conv_layer(model):
     for layer in reversed(model.layers):
@@ -213,6 +212,9 @@ def process_image(img_bytes, selected_model):
 def dashboard():
     return render_template("dashboard.html")
 
+# ===================================================================
+# RUTE /classify YANG SUDAH DIPERBAIKI
+# ===================================================================
 @app.route("/classify", methods=["GET", "POST"])
 def classify():
     prediction = None
@@ -236,20 +238,24 @@ def classify():
             img_bytes = file.read()
             input_base64 = base64.b64encode(img_bytes).decode("utf-8")
 
-            # Jalankan validasi dan proses gambar secara paralel
-            with ThreadPoolExecutor() as executor:
-                future_validation = executor.submit(validate_image_with_gemini, img_bytes)
+            # --- PERBAIKAN DIMULAI DI SINI ---
 
-                future_processing = executor.submit(process_image, img_bytes, selected_model)
-                
-                # Cek hasil validasi
-                if not future_validation.result():
-                    error_message = "Validasi Gagal: Gambar yang diupload bukan CT scan dada manusia."
-                    return render_template("classify.html", error_message=error_message)
+            # 1. Jalankan validasi Gemini terlebih dahulu (sekuensial).
+            if not validate_image_with_gemini(img_bytes):
+                error_message = "Validasi Gagal: Gambar yang diupload bukan CT scan dada manusia."
+                return render_template("classify.html", error_message=error_message)
 
-                img, prediction, pred_index, heatmap = future_processing.result()
+            # 2. Jalankan pemrosesan model (TensorFlow) secara SEKUENSIAL.
+            #    JANGAN masukkan ini ke dalam ThreadPoolExecutor untuk menghindari deadlock.
+            try:
+                img, prediction, pred_index, heatmap = process_image(img_bytes, selected_model)
+            except Exception as e:
+                print(f"Error selama process_image: {e}")
+                raise ValueError(f"Gagal memproses gambar dengan model: {str(e)}")
 
-            # Proses heatmap dan visualisasi
+
+            # 3. SEKARANG, gunakan ThreadPoolExecutor HANYA untuk tugas I/O (Gemini)
+            #    dan encoding gambar (CPU-light) yang aman dijalankan paralel.
             with ThreadPoolExecutor() as executor:
                 heatmap = np.nan_to_num(heatmap).astype(np.float32)
                 if np.max(heatmap) > 0:
@@ -261,39 +267,45 @@ def classify():
                 
                 superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
                 
-                # Encode gambar ke base64
+                # Tugas-tugas ini aman untuk di-thread:
                 future_gradcam = executor.submit(cv2.imencode, '.jpg', superimposed_img)
                 future_overlay = executor.submit(cv2.imencode, '.jpg', heatmap_color)
+                
+                # Buat prompt untuk Gemini
                 prompt = (
-                     f"Anda adalah seorang ahli radiologi AI. Gambar CT scan dada telah diklasifikasikan sebagai '{prediction}'. "
-                     "Visualisasi Grad-CAM menunjukkan area fokus model (area panas berwarna merah/kuning). "
-                     "Berdasarkan klasifikasi dan area fokus Grad-CAM tersebut, berikan analisis mendalam. "
-                     "Jelaskan secara spesifik di mana letak area panas pada gambar (misalnya: paru-paru kanan atas, dekat bronkus, dll.) dan apa signifikansinya terkait dengan klasifikasi. "
-                     "Berikan penjelasan dalam format Markdown yang terstruktur dengan heading, poin-poin, dan teks tebal untuk istilah penting.\n\n"
-                     "Struktur Jawaban:\n"
-                     "### Analisis Hasil Klasifikasi\n"
-                     f"- **Prediksi Model:** {prediction}\n"
-                     f"- **Penjelasan Singkat:** (Jelaskan secara singkat apa itu {prediction})\n\n"
-                     "### Interpretasi Visualisasi Grad-CAM\n"
-                     "- **Lokasi Fokus:** (Deskripsikan di mana area merah/kuning paling intens berada pada gambar paru-paru).\n"
-                     "- **Signifikansi:** (Jelaskan mengapa model mungkin fokus pada area tersebut dan hubungannya dengan {prediction}).\n\n"
-                     "### Potensi Implikasi & Langkah Selanjutnya\n"
-                     "- **Implikasi Klinis:** (Jelaskan apa arti temuan ini secara umum).\n"
-                     "- **Rekomendasi:** (Sebutkan bahwa hasil ini bukan diagnosis dan perlu divalidasi oleh ahli radiologi dan melalui tes lebih lanjut).\n\n"
-                     "**Disclaimer:** Analisis ini dihasilkan oleh AI dan bukan merupakan diagnosis medis. Konsultasikan dengan profesional kesehatan untuk evaluasi lebih lanjut."
+                         f"Anda adalah seorang ahli radiologi AI. Gambar CT scan dada telah diklasifikasikan sebagai '{prediction}'. "
+                         "Visualisasi Grad-CAM menunjukkan area fokus model (area panas berwarna merah/kuning). "
+                         "Berdasarkan klasifikasi dan area fokus Grad-CAM tersebut, berikan analisis mendalam. "
+                         "Jelaskan secara spesifik di mana letak area panas pada gambar (misalnya: paru-paru kanan atas, dekat bronkus, dll.) dan apa signifikansinya terkait dengan klasifikasi. "
+                         "Berikan penjelasan dalam format Markdown yang terstruktur dengan heading, poin-poin, dan teks tebal untuk istilah penting.\n\n"
+                         "Struktur Jawaban:\n"
+                         "### Analisis Hasil Klasifikasi\n"
+                         f"- **Prediksi Model:** {prediction}\n"
+                         f"- **Penjelasan Singkat:** (Jelaskan secara singkat apa itu {prediction})\n\n"
+                         "### Interpretasi Visualisasi Grad-CAM\n"
+                         "- **Lokasi Fokus:** (Deskripsikan di mana area merah/kuning paling intens berada pada gambar paru-paru).\n"
+                         "- **Signifikansi:** (Jelaskan mengapa model mungkin fokus pada area tersebut dan hubungannya dengan {prediction}).\n\n"
+                         "### Potensi Implikasi & Langkah Selanjutnya\n"
+                         "- **Implikasi Klinis:** (Jelaskan apa arti temuan ini secara umum).\n"
+                         "- **Rekomendasi:** (Sebutkan bahwa hasil ini bukan diagnosis dan perlu divalidasi oleh ahli radiologi dan melalui tes lebih lanjut).\n\n"
+                         "**Disclaimer:** Analisis ini dihasilkan oleh AI dan bukan merupakan diagnosis medis. Konsultasikan dengan profesional kesehatan untuk evaluasi lebih lanjut."
                 )
+                
+                # Panggilan API Gemini aman untuk di-thread
                 future_explanation = executor.submit(get_gemini_explanation, prompt)
                 
-                # Kumpulkan hasil
+                # Kumpulkan semua hasil dari thread
                 _, gradcam_buf = future_gradcam.result()
                 _, overlay_buf = future_overlay.result()
-            
                 classification_info = future_explanation.result()
                 
+                # Encode hasil akhir
                 gradcam_base64 = base64.b64encode(gradcam_buf).decode("utf-8")
                 overlay_base64 = base64.b64encode(overlay_buf).decode("utf-8")
+            
+            # --- PERBAIKAN SELESAI ---
 
-            if classification_info: # Blok ini sekarang akan dilewati
+            if classification_info: 
                 explanation_html = markdown.markdown(
                     classification_info, extensions=["fenced_code", "tables"]
                 )
@@ -431,4 +443,6 @@ def delete_history(history_id):
         return redirect(url_for("history", feedback="Gagal menghapus riwayat."))
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Gunakan host '0.0.0.0' untuk membuatnya dapat diakses dari luar
+    # Nonaktifkan debug mode untuk produksi
+    app.run(debug=False, host='0.0.0.0', port=5000)
