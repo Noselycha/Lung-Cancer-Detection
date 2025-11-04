@@ -326,17 +326,17 @@ def performance():
     models = ["efficientnet"] 
 
     confusion_matrix_imgs = {
-        "efficientnet": "EfficientNet_cm.jpg",
+        "efficientnet": "effnet1.png",
     }
     loss_imgs = {
-        "efficientnet": "EfficientNet_curve.jpg",
+        "efficientnet": "Eeffnet1.png",
     }
     metrics = {
         "efficientnet": {
-            "accuracy": 0.93,
-            "precision": [0.92, 0.94, 0.95, 0.92],
-            "recall": [0.94, 0.92, 0.93, 0.95],
-            "f1_score": [0.93, 0.93, 0.94, 0.93],
+            "accuracy": 0.9460,
+            "precision": [0.9481],
+            "recall": [0.9460],
+            "f1_score": [0.9463],
         }
     }
 
@@ -388,7 +388,7 @@ def about():
             "university": "Universitas Klabat",
             "faculty": "Fakultas Ilmu Komputer",
             "email": "rmaringka@unklab.ac.id",
-            "photo": "assets/raissa.jpg",
+            "photo": "assets/maamraisa.jpg",
         },
     ]
     return render_template("about.html", research_team=research_team, advisors=advisors)
