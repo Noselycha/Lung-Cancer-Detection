@@ -329,7 +329,7 @@ def performance():
         "efficientnet": "effnet1.png",
     }
     loss_imgs = {
-        "efficientnet": "Eeffnet1.png",
+        "efficientnet": "effnet2.png",
     }
     metrics = {
         "efficientnet": {
