@@ -7,13 +7,16 @@ import markdown
 import numpy as np
 import tensorflow as tf
 import google.generativeai as genai
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import Image
 from tensorflow.keras.applications.efficientnet import preprocess_input
 from pymongo import MongoClient
 from bson import ObjectId
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
+from functools import wraps # Import untuk dekorator login_required
+
 load_dotenv()
 
 # Setup MongoDB
@@ -21,25 +24,42 @@ MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client.lungcancer
 history_collection = db.history
+users_collection = db.users # Collection untuk data user
 
 try:
+    # Konfigurasi Gemini API
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 except Exception as e:
     print(f"Error: {e}")
 
+# Konstanta Global
 LABELS = ["adenocarcinoma", "large.cell.carcinoma", "normal", "squamous.cell.carcinoma"]
 IMAGE_SIZE = 224
 
 app = Flask(__name__)
+# SECRET_KEY Wajib untuk manajemen sesi/session Flask
+app.secret_key = os.getenv("SECRET_KEY", "super-secret-default-key") 
+
+# --- FUNGSI AUTENTIKASI DAN UTILITY ---
+
+def login_required(f):
+    """Dekorator untuk membatasi akses ke user yang sudah login."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            # flash message akan ditampilkan di template yang memiliki blok flashed messages
+            flash("Anda harus login untuk mengakses halaman ini.", "warning") 
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def get_gemini_explanation(prompt, img_bytes=None):
     """Menghasilkan penjelasan dari Gemini, mendukung input multimodal (teks+gambar)."""
     try:
         model = genai.GenerativeModel("gemini-2.5-pro") 
         if img_bytes is not None:
-            image_data = img_bytes.tobytes()
-            image_part = {"mime_type": "image/jpeg", "data": image_data}
-            response = model.generate_content([prompt, image_part])
+            # Menggunakan bytes yang sudah di-encode oleh Grad-CAM (jpeg)
+            response = model.generate_content([prompt, {"mime_type": "image/jpeg", "data": img_bytes.tobytes()}])
         else:
             response = model.generate_content(prompt)
             
@@ -61,17 +81,21 @@ def validate_image_with_gemini(img_bytes):
         model = genai.GenerativeModel("gemini-2.5-pro")
         image_part = {"mime_type": "image/jpeg", "data": img_bytes}
         response = model.generate_content([prompt, image_part])
+        # Membersihkan dan memastikan output hanya 'VALID' atau 'INVALID'
         return response.text.strip().upper() == "VALID"
     except Exception as e:
         print(f"Error saat validasi Gemini: {str(e)}")
+        # Fallback ke True jika ada masalah API agar aplikasi tetap berjalan
         return True 
 
 def find_last_conv_layer(model):
+    """Mencari nama layer Conv2D terakhir pada model."""
     for layer in reversed(model.layers):
         if isinstance(layer, tf.keras.layers.Conv2D):
             return layer.name
     raise ValueError("Tidak ada layer Conv2D yang ditemukan di model.")
 
+# ... (Fungsi get_gradcam_heatmap tetap sama)
 def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None):
     grad_model = tf.keras.models.Model(
         [model.inputs], [model.get_layer(last_conv_layer_name).output, model.output]
@@ -93,6 +117,7 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
     return heatmap.numpy()
 
 
+# ... (Fungsi load_selected_model tetap sama)
 def load_selected_model(model_name):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     model_file = None
@@ -145,6 +170,7 @@ def load_selected_model(model_name):
 LOADED_MODELS = {}
 LOADED_LAST_CONV = {}
 
+# ... (Fungsi load_all_models tetap sama)
 def load_all_models():
     available_models = {
         "efficientnet": "lungcancer_efficientnetB3_RMSprop.h5"
@@ -167,6 +193,7 @@ def load_all_models():
             LOADED_LAST_CONV[model_name] = last_conv
             
             try:
+                # Pemanasan model
                 dummy = np.zeros((1, IMAGE_SIZE, IMAGE_SIZE, 3), dtype=np.float32)
                 _ = model.predict(dummy)
             except Exception as warm_err:
@@ -183,6 +210,7 @@ def load_all_models():
 
 load_all_models()
 
+# ... (Fungsi process_image tetap sama)
 def process_image(img_bytes, selected_model):
     """Memproses gambar: prediksi, dan buat heatmap."""
     nparr = np.frombuffer(img_bytes, np.uint8)
@@ -208,11 +236,80 @@ def process_image(img_bytes, selected_model):
     
     return img, pred_class, pred_index, heatmap
 
+# --- ROUTES AUTENTIKASI BARU ---
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Route untuk pendaftaran user baru."""
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        
+        # Cek apakah username sudah ada
+        if users_collection.find_one({"username": username}):
+            flash("Username sudah terdaftar. Silakan gunakan username lain.", "danger")
+            return redirect(url_for("register"))
+        
+        # Enkripsi password sebelum disimpan
+        hashed_password = generate_password_hash(password)
+        
+        # Simpan user baru ke database
+        users_collection.insert_one({
+            "username": username,
+            "password": hashed_password,
+            "created_at": datetime.datetime.utcnow()
+        })
+        
+        flash("Registrasi berhasil! Silakan login.", "success")
+        return redirect(url_for("login"))
+        
+    return render_template("register.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Route untuk login user."""
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+        
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        
+        user = users_collection.find_one({"username": username})
+        
+        if user and check_password_hash(user["password"], password):
+            # Login berhasil: set session
+            session["user_id"] = str(user["_id"]) 
+            session["username"] = user["username"]
+            flash(f"Selamat datang, {user['username']}!", "success")
+            return redirect(url_for("dashboard"))
+        else:
+            # Login gagal
+            flash("Username atau password salah.", "danger")
+            return redirect(url_for("login"))
+            
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    """Route untuk logout user."""
+    session.pop("user_id", None)
+    session.pop("username", None)
+    flash("Anda telah logout.", "info")
+    return redirect(url_for("login"))
+
+# --- ROUTES UTAMA (DILINDUNGI) ---
+
 @app.route("/")
+@login_required # Hanya user yang login yang bisa mengakses dashboard
 def dashboard():
     return render_template("dashboard.html")
 
 @app.route("/classify", methods=["GET", "POST"])
+@login_required # Hanya user yang login yang bisa mengakses klasifikasi
 def classify():
     prediction = None
     explanation_html = None
@@ -224,6 +321,7 @@ def classify():
     if request.method == "POST":
         try:
             selected_model = "efficientnet" 
+            # Mengambil data pasien (tetap diperlukan untuk history)
             nama_pasien = request.form["nama_pasien"]
             umur_pasien = request.form["umur_pasien"]
             gender_pasien = request.form["gender_pasien"]
@@ -235,17 +333,22 @@ def classify():
             img_bytes = file.read() 
             input_base64 = base64.b64encode(img_bytes).decode("utf-8")
             
+            # --- VALIDASI GEMINI ---
             if not validate_image_with_gemini(img_bytes):
                 error_message = "Validasi Gagal: Gambar yang diupload bukan CT scan dada manusia."
-                return render_template("classify.html", error_message=error_message)
+                flash(error_message, "danger")
+                return render_template("classify.html", error_message=error_message, available_models=list(LOADED_MODELS.keys()))
             
+            # --- PROSES KLASIFIKASI & GRAD-CAM ---
             try:
                 img, prediction, pred_index, heatmap = process_image(img_bytes, selected_model)
             except Exception as e:
                 print(f"Error selama process_image: {e}")
                 raise ValueError(f"Gagal memproses gambar dengan model: {str(e)}")
 
+            # Pemanfaatan ThreadPoolExecutor untuk proses I/O dan AI yang intensif
             with ThreadPoolExecutor() as executor:
+                # Normalisasi dan pengubahan heatmap menjadi warna
                 heatmap = np.nan_to_num(heatmap).astype(np.float32)
                 if np.max(heatmap) > 0:
                     heatmap /= np.max(heatmap)
@@ -256,12 +359,16 @@ def classify():
                 
                 superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
                 
+                # Meng-encode gambar untuk dikirim ke Gemini dan ditampilkan
+                # Menggunakan Future untuk menjalankan proses I/O (imencode) secara paralel/asynchronous
                 future_gradcam = executor.submit(cv2.imencode, '.jpg', superimposed_img)
                 future_overlay = executor.submit(cv2.imencode, '.jpg', heatmap_color)
 
                 success_gradcam, gradcam_buf_array = future_gradcam.result()
                 if not success_gradcam:
                     raise ValueError("Gagal meng-encode gambar Grad-CAM")
+                    
+                # Membuat prompt untuk Gemini
                 prompt = (
                          f"Anda adalah seorang ahli radiologi AI. Gambar CT scan dada telah diklasifikasikan sebagai '{prediction}'. "
                          "Saya juga melampirkan gambar Grad-CAM (visualisasi overlay) yang menunjukkan area fokus model (area panas berwarna merah/kuning). "
@@ -281,9 +388,10 @@ def classify():
                          "**Disclaimer:** Analisis ini dihasilkan oleh AI dan bukan merupakan diagnosis medis. Konsultasikan dengan profesional kesehatan untuk evaluasi lebih lanjut."
                 )
 
+                # Mengirim gambar Grad-CAM (dalam bentuk bytes array) ke Gemini
                 future_explanation = executor.submit(get_gemini_explanation, prompt, img_bytes=gradcam_buf_array)
                 
-
+                # Mengambil hasil dari Future
                 _, overlay_buf_array = future_overlay.result()
                 classification_info = future_explanation.result()
                 
@@ -295,19 +403,26 @@ def classify():
                     classification_info, extensions=["fenced_code", "tables"]
                 )
 
+            # --- SIMPAN KE HISTORY ---
             history_doc = {
+                "user_id": session.get("user_id"), # Menyimpan ID user yang melakukan klasifikasi
                 "model": selected_model,
                 "prediction": prediction,
                 "input_filename": file.filename,
                 "image_base64": input_base64,
                 "gradcam_base64": gradcam_base64,
                 "nama_pasien": nama_pasien,
+                "umur_pasien": umur_pasien, # Menyimpan umur
+                "gender_pasien": gender_pasien, # Menyimpan gender
                 "timestamp": datetime.datetime.utcnow()
             }
             history_collection.insert_one(history_doc)
+            flash("Klasifikasi berhasil diproses.", "success")
+
 
         except Exception as e:
             error_message = f"Terjadi kesalahan: {str(e)}"
+            flash(error_message, "danger")
             print(f"Error di /classify: {e}") 
             
     return render_template(
@@ -394,11 +509,16 @@ def about():
     return render_template("about.html", research_team=research_team, advisors=advisors)
 
 @app.route("/history")
+@login_required # Hanya user yang login yang bisa melihat history
 def history():
     feedback = request.args.get("feedback")
     try:
-        histories = list(history_collection.find({}, {
+        # Hanya menampilkan history milik user yang sedang login
+        user_id = session.get("user_id")
+        histories = list(history_collection.find({"user_id": user_id}, {
             "nama_pasien": 1,
+            "umur_pasien": 1,
+            "gender_pasien": 1,
             "timestamp": 1,
             "model": 1,
             "prediction": 1,
@@ -418,10 +538,19 @@ def history():
     return render_template("history.html", histories=histories, feedback=feedback)
 
 @app.route("/delete_history/<history_id>", methods=["POST"])
+@login_required # Hanya user yang login yang bisa menghapus history
 def delete_history(history_id):
     try:
-        history_collection.delete_one({"_id": ObjectId(history_id)})
-        return redirect(url_for("history", feedback="Riwayat berhasil dihapus."))
+        # Tambahkan verifikasi kepemilikan
+        user_id = session.get("user_id")
+        result = history_collection.delete_one({"_id": ObjectId(history_id), "user_id": user_id})
+
+        if result.deleted_count == 1:
+            feedback_msg = "Riwayat berhasil dihapus."
+        else:
+            feedback_msg = "Gagal menghapus riwayat atau riwayat tidak ditemukan."
+
+        return redirect(url_for("history", feedback=feedback_msg))
     except Exception as e:
         print(f"Error menghapus riwayat: {e}")
         return redirect(url_for("history", feedback="Gagal menghapus riwayat."))

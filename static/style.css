@@ -581,3 +581,71 @@ body {
 body::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* --- Authentication Page Specific Styles (Login & Register) --- */
+
+/* Adapt the main container for auth pages */
+.auth-container {
+  max-width: 500px; /* Make the container narrower for auth forms */
+  margin: var(--space-10) auto; /* Add vertical margin for better centering */
+  box-shadow: 0 20px 60px -30px rgba(15, 23, 42, 0.5); /* Lighter shadow */
+}
+
+.auth-header {
+  padding: clamp(var(--space-6), 5vw, var(--space-8))
+    clamp(var(--space-6), 5vw, var(--space-8)) var(--space-6);
+}
+
+.auth-form {
+  padding: clamp(var(--space-6), 4vw, var(--space-8));
+}
+
+.auth-footer {
+  text-align: center;
+  padding: var(--space-5) var(--space-6) var(--space-6);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.auth-link-group {
+  text-align: right;
+}
+
+.auth-link,
+.auth-link-primary {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-fast);
+}
+
+.auth-link:hover,
+.auth-link-primary:hover {
+  color: var(--secondary-600);
+  text-decoration: underline;
+}
+
+.auth-link-primary {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Specific styling for the submit button in auth pages */
+.auth-container .submit-section {
+  padding: var(--space-4) 0 var(--space-2); /* Adjust padding */
+  border-top: none; /* Remove border */
+  justify-content: center;
+}
+
+.auth-container .btn-submit {
+  width: 100%; /* Make button full width of the form */
+  max-width: 100%;
+}
+
+/* Override responsive for auth pages to maintain narrow focus */
+@media (max-width: 768px) {
+  .auth-container {
+    margin: var(--space-8) var(--space-4);
+    max-width: 100%;
+  }
+}

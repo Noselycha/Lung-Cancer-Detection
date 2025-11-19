@@ -4,15 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Sistem deteksi kanker paru-paru berbasis AI untuk klasifikasi dan analisis citra CT scan">
-    <title>{% block title %}Chest Cancer System{% endblock %}</title>
+    <title>{% block title %}LuminaDetect - Chest Cancer System{% endblock %}</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Icon Library -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js">
+    <!-- Icon Library (Lucide) -->
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
     
     <!-- Stylesheets -->
@@ -32,6 +31,9 @@
     {% if request.endpoint == 'history' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}" />
     {% endif %}
+    {% if request.endpoint == 'login' or request.endpoint == 'register' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}" />
+    {% endif %}
   </head>
   <body>
     <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
@@ -41,14 +43,22 @@
       <div class="background-layer background-glow"></div>
       <div class="background-layer background-grid"></div>
     </div>
+    
     <!-- Mobile Header -->
     <div class="mobile-header">
       <a href="{{ url_for('dashboard') }}" class="brand-mobile">
+        <!-- Icon: Virus/Flask/Shield -->
         <svg class="brand-icon-mobile" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
         </svg>
-        <span>Chest Cancer System</span>
+        <span>LuminaDetect</span>
       </a>
+      {% if 'user_id' in session %}
+      <span class="mobile-username">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        {{ session['username'] }}
+      </span>
+      {% endif %}
       <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
         <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -64,6 +74,7 @@
       <div class="sidebar-header">
         <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
           <div class="sidebar-brand-icon-wrapper">
+            <!-- Icon: Flask/Shield/Beaker -->
             <svg class="sidebar-brand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
             </svg>
@@ -78,10 +89,12 @@
         <div class="sidebar-section">
           <span class="sidebar-section-title">Main Menu</span>
           <ul class="sidebar-menu">
+            {% if 'user_id' in session %}
+            <!-- DASHBOARD (Requires Login) -->
             <li class="sidebar-menu-item">
               <a href="{{ url_for('dashboard') }}" 
-                 class="sidebar-link {% if request.endpoint=='dashboard' %}active{% endif %}"
-                 {% if request.endpoint=='dashboard' %}aria-current="page"{% endif %}>
+                class="sidebar-link {% if request.endpoint=='dashboard' %}active{% endif %}"
+                {% if request.endpoint=='dashboard' %}aria-current="page"{% endif %}>
                 <div class="sidebar-link-icon">
                   <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -91,10 +104,11 @@
                 <span class="sidebar-link-badge">Home</span>
               </a>
             </li>
+            <!-- KLASIFIKASI (Requires Login) -->
             <li class="sidebar-menu-item">
               <a href="{{ url_for('classify') }}" 
-                 class="sidebar-link {% if request.endpoint=='classify' %}active{% endif %}"
-                 {% if request.endpoint=='classify' %}aria-current="page"{% endif %}>
+                class="sidebar-link {% if request.endpoint=='classify' %}active{% endif %}"
+                {% if request.endpoint=='classify' %}aria-current="page"{% endif %}>
                 <div class="sidebar-link-icon">
                   <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -108,10 +122,13 @@
                 </span>
               </a>
             </li>
+            {% endif %}
+            
+            <!-- PERFORMANCE (Public) -->
             <li class="sidebar-menu-item">
               <a href="{{ url_for('performance') }}" 
-                 class="sidebar-link {% if request.endpoint=='performance' %}active{% endif %}"
-                 {% if request.endpoint=='performance' %}aria-current="page"{% endif %}>
+                class="sidebar-link {% if request.endpoint=='performance' %}active{% endif %}"
+                {% if request.endpoint=='performance' %}aria-current="page"{% endif %}>
                 <div class="sidebar-link-icon">
                   <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -125,10 +142,13 @@
                 </span>
               </a>
             </li>
+            
+            {% if 'user_id' in session %}
+            <!-- RIWAYAT (Requires Login) -->
             <li class="sidebar-menu-item">
               <a href="{{ url_for('history') }}" 
-                 class="sidebar-link {% if request.endpoint=='history' %}active{% endif %}"
-                 {% if request.endpoint=='history' %}aria-current="page"{% endif %}>
+                class="sidebar-link {% if request.endpoint=='history' %}active{% endif %}"
+                {% if request.endpoint=='history' %}aria-current="page"{% endif %}>
                 <div class="sidebar-link-icon">
                   <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -142,16 +162,18 @@
                 </span>
               </a>
             </li>
+            {% endif %}
           </ul>
         </div>
         
         <div class="sidebar-section">
           <span class="sidebar-section-title">Information</span>
           <ul class="sidebar-menu">
+            <!-- ABOUT (Public) -->
             <li class="sidebar-menu-item">
               <a href="{{ url_for('about') }}" 
-                 class="sidebar-link {% if request.endpoint=='about' %}active{% endif %}"
-                 {% if request.endpoint=='about' %}aria-current="page"{% endif %}>
+                class="sidebar-link {% if request.endpoint=='about' %}active{% endif %}"
+                {% if request.endpoint=='about' %}aria-current="page"{% endif %}>
                 <div class="sidebar-link-icon">
                   <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -165,6 +187,48 @@
                 </span>
               </a>
             </li>
+          </ul>
+        </div>
+
+        <!-- AUTHENTICATION SECTION -->
+        <div class="sidebar-section sidebar-auth-section">
+          <span class="sidebar-section-title">User Account</span>
+          <ul class="sidebar-menu">
+            {% if 'user_id' in session %}
+              <!-- LOGGED IN STATE -->
+              <li class="sidebar-menu-item user-info-item">
+                <div class="sidebar-link-icon sidebar-user-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <span class="sidebar-text sidebar-username">Hi, {{ session['username'] }}</span>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="{{ url_for('logout') }}" class="sidebar-link link-logout">
+                    <div class="sidebar-link-icon">
+                        <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </div>
+                    <span class="sidebar-text">Logout</span>
+                </a>
+              </li>
+            {% else %}
+              <!-- LOGGED OUT STATE -->
+              <li class="sidebar-menu-item">
+                <a href="{{ url_for('login') }}" class="sidebar-link {% if request.endpoint=='login' %}active auth-active{% endif %}">
+                    <div class="sidebar-link-icon">
+                        <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </div>
+                    <span class="sidebar-text">Login</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="{{ url_for('register') }}" class="sidebar-link {% if request.endpoint=='register' %}active auth-active{% endif %}">
+                    <div class="sidebar-link-icon">
+                        <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    </div>
+                    <span class="sidebar-text">Register</span>
+                </a>
+              </li>
+            {% endif %}
           </ul>
         </div>
       </nav>
@@ -194,6 +258,24 @@
     <div class="main-wrapper">
       <!-- Main Content -->
       <main class="main-content" role="main" id="main-content">
+        
+        <!-- FLASH MESSAGES CONTAINER -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages-container" aria-live="polite">
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">
+                    <p>{{ message }}</p>
+                    <button class="flash-close" onclick="this.parentElement.style.display='none';" aria-label="Close message">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <!-- END FLASH MESSAGES CONTAINER -->
+        
         <div class="content-container">
           {% block content %}{% endblock %}
         </div>
@@ -202,7 +284,7 @@
       <!-- Footer -->
       <footer class="footer" role="contentinfo">
         <div class="footer-content">
-          <p>&copy; 2025 Chest Cancer System. All rights reserved.</p>
+          <p>&copy; 2025 LuminaDetect. All rights reserved.</p>
           <p class="footer-subtitle">Powered by AI & Deep Learning</p>
         </div>
       </footer>
@@ -220,7 +302,6 @@
         sidebarOverlay.classList.toggle('active');
         document.body.classList.toggle('sidebar-open');
         
-        // Animate menu items
         if (document.body.classList.contains('sidebar-open')) {
           const menuItems = document.querySelectorAll('.sidebar-menu-item');
           menuItems.forEach((item, index) => {
@@ -237,18 +318,20 @@
       sidebarLinks.forEach(link => {
         link.addEventListener('click', () => {
           if (window.innerWidth < 768) {
-            setTimeout(toggleSidebar, 200);
+            // Delay closing slightly to allow link navigation
+            setTimeout(toggleSidebar, 200); 
           }
         });
       });
       
-      // Add hover effects for sidebar links
+      // Add hover effects for sidebar links (for non-mobile)
       sidebarLinks.forEach(link => {
         link.addEventListener('mouseenter', function() {
           this.style.transform = 'translateX(4px)';
         });
         
         link.addEventListener('mouseleave', function() {
+          // Reset transform only if it's not the active link
           if (!this.classList.contains('active')) {
             this.style.transform = '';
           }
@@ -275,6 +358,78 @@
     </script>
     
     <style>
+      /* --- FLASH MESSAGES STYLING --- */
+      .flash-messages-container {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 1000;
+          max-width: 350px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+      }
+
+      .flash-message {
+          padding: 12px 16px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          color: #fff;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-left: 5px solid;
+          transition: opacity 0.3s ease, transform 0.3s ease;
+          animation: fadeInDown 0.3s ease-out;
+      }
+      
+      .flash-message p {
+          margin: 0;
+          padding-right: 10px;
+          flex-grow: 1;
+      }
+
+      .flash-close {
+          background: none;
+          border: none;
+          color: inherit;
+          cursor: pointer;
+          opacity: 0.8;
+          transition: opacity 0.2s;
+          padding: 0;
+          display: flex;
+          align-items: center;
+      }
+      .flash-close:hover {
+          opacity: 1;
+      }
+
+      /* Category Specific Colors */
+      .flash-success {
+          background-color: #4CAF50; /* Green */
+          border-color: #388E3C;
+      }
+      .flash-danger {
+          background-color: #F44336; /* Red */
+          border-color: #D32F2F;
+      }
+      .flash-warning {
+          background-color: #FFC107; /* Amber */
+          border-color: #FFA000;
+          color: #333;
+      }
+      .flash-info {
+          background-color: #2196F3; /* Blue */
+          border-color: #1976D2;
+      }
+
+      @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+      /* --- END FLASH MESSAGES STYLING --- */
+      
       @keyframes slideInLeft {
         from {
           opacity: 0;
@@ -302,6 +457,32 @@
         to {
           opacity: 1;
           transform: translateX(0);
+        }
+      }
+
+      .sidebar-auth-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .sidebar-username {
+        font-weight: 600;
+        color: var(--color-primary-light);
+      }
+      .user-info-item .sidebar-link-icon {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-username {
+          display: flex;
+          align-items: center;
+          color: #fff;
+          font-size: 0.9rem;
+          font-weight: 500;
+          padding-right: 15px;
+          gap: 5px;
         }
       }
     </style>
